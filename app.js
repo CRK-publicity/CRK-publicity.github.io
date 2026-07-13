@@ -55,7 +55,92 @@
     if (wasAdded) cart.delete(name); else cart.set(name, Number(button.dataset.price));
     button.classList.toggle('added', !wasAdded);
     button.firstChild.textContent = wasAdded ? 'Agregar ' : 'Agregado ';
-    renderCart();
+    function initProductSlider(slider) {
+    const track = slider.querySelector('.product-slider-track');
+    const slides = [...slider.querySelectorAll('.product-slide')];
+    const dotsContainer = slider.querySelector('.product-slider-dots');
+    const counter = slider.querySelector('.product-slider-counter');
+    const previous = slider.querySelector('.product-slider-control.previous');
+    const next = slider.querySelector('.product-slider-control.next');
+    if (!track || !slides.length || !dotsContainer || !counter || !previous || !next) return;
+
+    let activeIndex = 0;
+    let pointerStartX = null;
+    const dots = slides.map((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', 'Ver imagen ' + (index + 1));
+      dot.addEventListener('click', () => showSlide(index));
+      return dot;
+    });
+    dotsContainer.replaceChildren(...dots);
+
+    function showSlide(requestedIndex) {
+      activeIndex = (requestedIndex + slides.length) % slides.length;
+      track.style.transform = 'translate3d(' + (-activeIndex * 100) + '%, 0, 0)';
+      slides.forEach((slide, index) => {
+        const active = index === activeIndex;
+        slide.setAttribute('aria-hidden', String(!active));
+      });
+      dots.forEach((dot, index) => {
+        const active = index === activeIndex;
+        dot.classList.toggle('active', active);
+        dot.setAttribute('aria-current', active ? 'true' : 'false');
+      });
+      counter.textContent = (activeIndex + 1) + ' / ' + slides.length;
+
+      const activeImage = slides[activeIndex].querySelector('img');
+      if (!activeImage) return;
+      const updateBackground = () => {
+        const source = activeImage.currentSrc || activeImage.src;
+        slider.style.setProperty('--slider-bg', 'url("' + source + '")');
+      };
+      if (activeImage.complete) updateBackground();
+      else activeImage.addEventListener('load', updateBackground, { once: true });
+    }
+
+    previous.addEventListener('click', () => showSlide(activeIndex - 1));
+    next.addEventListener('click', () => showSlide(activeIndex + 1));
+    slider.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        showSlide(activeIndex - 1);
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        showSlide(activeIndex + 1);
+      }
+      if (event.key === 'Home') {
+        event.preventDefault();
+        showSlide(0);
+      }
+      if (event.key === 'End') {
+        event.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+    slider.addEventListener('pointerdown', (event) => {
+      if (event.isPrimary) pointerStartX = event.clientX;
+    });
+    slider.addEventListener('pointerup', (event) => {
+      if (pointerStartX === null || !event.isPrimary) return;
+      const distance = event.clientX - pointerStartX;
+      pointerStartX = null;
+      if (Math.abs(distance) < 45) return;
+      showSlide(activeIndex + (distance < 0 ? 1 : -1));
+    });
+    slider.addEventListener('pointercancel', () => { pointerStartX = null; });
+
+    const multipleSlides = slides.length > 1;
+    previous.hidden = !multipleSlides;
+    next.hidden = !multipleSlides;
+    dotsContainer.hidden = !multipleSlides;
+    counter.hidden = !multipleSlides;
+    showSlide(0);
+  }
+
+  document.querySelectorAll('[data-product-slider]').forEach(initProductSlider);
+  renderCart();
     showToast(wasAdded ? 'Servicio retirado.' : 'Servicio agregado a tu cotización.');
   }));
   document.querySelectorAll('[data-open-quote]').forEach((button) => button.addEventListener('click', () => setPanel(true)));
@@ -98,5 +183,90 @@
     form.reset();
     fields.forEach((field) => field.removeAttribute('aria-invalid'));
   });
+  function initProductSlider(slider) {
+    const track = slider.querySelector('.product-slider-track');
+    const slides = [...slider.querySelectorAll('.product-slide')];
+    const dotsContainer = slider.querySelector('.product-slider-dots');
+    const counter = slider.querySelector('.product-slider-counter');
+    const previous = slider.querySelector('.product-slider-control.previous');
+    const next = slider.querySelector('.product-slider-control.next');
+    if (!track || !slides.length || !dotsContainer || !counter || !previous || !next) return;
+
+    let activeIndex = 0;
+    let pointerStartX = null;
+    const dots = slides.map((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', 'Ver imagen ' + (index + 1));
+      dot.addEventListener('click', () => showSlide(index));
+      return dot;
+    });
+    dotsContainer.replaceChildren(...dots);
+
+    function showSlide(requestedIndex) {
+      activeIndex = (requestedIndex + slides.length) % slides.length;
+      track.style.transform = 'translate3d(' + (-activeIndex * 100) + '%, 0, 0)';
+      slides.forEach((slide, index) => {
+        const active = index === activeIndex;
+        slide.setAttribute('aria-hidden', String(!active));
+      });
+      dots.forEach((dot, index) => {
+        const active = index === activeIndex;
+        dot.classList.toggle('active', active);
+        dot.setAttribute('aria-current', active ? 'true' : 'false');
+      });
+      counter.textContent = (activeIndex + 1) + ' / ' + slides.length;
+
+      const activeImage = slides[activeIndex].querySelector('img');
+      if (!activeImage) return;
+      const updateBackground = () => {
+        const source = activeImage.currentSrc || activeImage.src;
+        slider.style.setProperty('--slider-bg', 'url("' + source + '")');
+      };
+      if (activeImage.complete) updateBackground();
+      else activeImage.addEventListener('load', updateBackground, { once: true });
+    }
+
+    previous.addEventListener('click', () => showSlide(activeIndex - 1));
+    next.addEventListener('click', () => showSlide(activeIndex + 1));
+    slider.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        showSlide(activeIndex - 1);
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        showSlide(activeIndex + 1);
+      }
+      if (event.key === 'Home') {
+        event.preventDefault();
+        showSlide(0);
+      }
+      if (event.key === 'End') {
+        event.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+    slider.addEventListener('pointerdown', (event) => {
+      if (event.isPrimary) pointerStartX = event.clientX;
+    });
+    slider.addEventListener('pointerup', (event) => {
+      if (pointerStartX === null || !event.isPrimary) return;
+      const distance = event.clientX - pointerStartX;
+      pointerStartX = null;
+      if (Math.abs(distance) < 45) return;
+      showSlide(activeIndex + (distance < 0 ? 1 : -1));
+    });
+    slider.addEventListener('pointercancel', () => { pointerStartX = null; });
+
+    const multipleSlides = slides.length > 1;
+    previous.hidden = !multipleSlides;
+    next.hidden = !multipleSlides;
+    dotsContainer.hidden = !multipleSlides;
+    counter.hidden = !multipleSlides;
+    showSlide(0);
+  }
+
+  document.querySelectorAll('[data-product-slider]').forEach(initProductSlider);
   renderCart();
 })();
