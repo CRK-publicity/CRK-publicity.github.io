@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/crk-publicity-portfolio/',
+  base: '/crkpublicity/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
