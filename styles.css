@@ -151,3 +151,5 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 /* ACRYLIC & NEON SIGNAGE PHOTO FIT */
 .product-slider-signage .product-slide img,.product-slider-business .product-slide img{width:100%;height:100%;max-height:none;object-fit:cover;object-position:center;border-radius:14px}
 @media(max-width:640px){.product-slider-signage,.product-slider-business{height:auto;min-height:0;aspect-ratio:14/25}.product-slider-signage .product-slide img,.product-slider-business .product-slide img{border-radius:12px}}
+.product-slider-vinyl .product-slide img{width:100%;height:auto;max-height:calc(100% - 10px);object-fit:contain;object-position:center}
+@media(max-width:640px){.product-slider-vinyl{height:auto;min-height:0;aspect-ratio:4/5}.product-slider-vinyl .product-slide img{width:100%;height:100%;max-height:none;object-fit:cover;border-radius:12px}}
