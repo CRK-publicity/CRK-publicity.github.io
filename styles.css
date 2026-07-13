@@ -126,3 +126,9 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 @media(max-width:900px){.brand-contact-links{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){.work-card,.work-card-featured,.work-card-wide{min-height:0;aspect-ratio:808/632}.header>.logo{padding:6px 8px;border-radius:14px}.brand-contact-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.brand-contact-links .social-link{min-height:48px;padding:0 10px;border-radius:14px}}
 @media(prefers-reduced-motion:reduce){.header>.logo::before{animation:none}.brand-contact-links .social-link::before{transition:none}}
+/* KHALO BUSINESS CARD PHOTO */
+.product-art-photo{display:grid;place-items:center;isolation:isolate;padding:16px;background:#171310}
+.product-art-photo::before{content:"";position:absolute;z-index:0;inset:-30px;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.58)),url("assets/products/tarjetas-negocio-khalo.webp") center/cover no-repeat;filter:blur(22px) saturate(.86);transform:scale(1.12)}
+.product-art-photo::after{content:"";position:absolute;z-index:1;inset:14px;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.05),transparent 42%);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 22px rgba(255,107,0,.08);pointer-events:none}
+.product-art-photo img{position:relative;z-index:2;width:100%;height:auto;max-height:calc(100% - 10px);display:block;object-fit:contain;border-radius:14px;box-shadow:0 22px 55px rgba(0,0,0,.42);filter:saturate(.96) contrast(1.02)}
+@media(max-width:640px){.product-art-photo{padding:10px}.product-art-photo::after{inset:9px;border-radius:15px}.product-art-photo img{max-height:100%;border-radius:12px}}
