@@ -1,15 +1,19 @@
 {
-  "name": "crk-publicity-portfolio",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0"
-  },
-  "devDependencies": {
-    "qrcode": "^1.5.4",
-    "vite": "8.1.4"
-  }
+    "name":  "crk-publicity-portfolio",
+    "version":  "1.0.0",
+    "private":  true,
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "vite --host 0.0.0.0",
+                    "build":  "vite build",
+                    "preview":  "vite preview --host 0.0.0.0",
+                    "check":  "node --test tests/*.test.js"
+                },
+    "devDependencies":  {
+                            "qrcode":  "^1.5.4",
+                            "vite":  "8.1.4"
+                        },
+    "dependencies":  {
+                         "@supabase/supabase-js":  "^2.52.1"
+                     }
 }

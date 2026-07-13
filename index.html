@@ -167,13 +167,15 @@
         <form id="lead-form" novalidate>
           <div class="field"><label for="name">Nombre completo</label><input id="name" name="name" autocomplete="name" required minlength="2"><small class="error" aria-live="polite"></small></div>
           <div class="field"><label for="email">Correo de trabajo</label><input id="email" name="email" type="email" autocomplete="email" required><small class="error" aria-live="polite"></small></div>
+          <div class="field"><label for="phone">WhatsApp</label><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="302 840 2389" required minlength="10" maxlength="20"><small class="error" aria-live="polite"></small></div>
           <div class="field"><label for="business">Nombre del negocio</label><input id="business" name="business" autocomplete="organization" required minlength="2"><small class="error" aria-live="polite"></small></div>
           <div class="field"><label for="need">¿Qué necesitas mejorar?</label><select id="need" name="need" required><option value="">Selecciona una opción</option><option>Conseguir más prospectos</option><option>Crear o mejorar mi página web</option><option>Organizar clientes en un CRM</option><option>Automatizar el seguimiento</option><option>Tarjetas de negocio</option><option>Avisos neón o acrílico</option><option>Vinilos o wraps</option><option>Productos personalizados</option></select><small class="error" aria-live="polite"></small></div>
+          <div class="website-field" aria-hidden="true"><label for="website">Deja este campo vacío</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
           <label class="consent"><input id="consent" name="consent" type="checkbox" required><span>Autorizo el uso de mis datos para responder esta solicitud. No se compartirán con terceros.</span></label>
           <small id="consent-error" class="error" aria-live="polite"></small>
           <button class="button primary submit" type="submit">Solicitar diagnóstico <span>→</span></button>
-          <p class="privacy-note">Demostración: este formulario no transmite ni almacena información.</p>
-          <div id="form-success" class="form-success" role="status" tabindex="-1"><b>Solicitud simulada correctamente.</b><span>En una integración real, aquí se crearía o actualizaría el contacto en HubSpot.</span></div>
+          <p class="privacy-note">Tus datos se almacenan de forma protegida y solo se usan para atender esta solicitud.</p>
+          <div id="form-success" class="form-success" role="status" tabindex="-1"><b>Solicitud recibida.</b><span>Ya quedó registrada para que nuestro equipo pueda responderte.</span></div>
         </form>
       </div>
     </section>
@@ -195,7 +197,8 @@
     </div>
   </section>
 
-  <footer class="footer"><div><a class="logo" href="#inicio"><img src="assets/crk-publicity-logo.svg" alt="CRK Publicity"></a><p>Digitalizamos negocios sin quitarles lo humano.</p></div><div><b>Explora</b><a href="#servicios">Servicios</a><a href="#productos">Productos</a><a href="#trabajos">Trabajos</a><a href="#contacto">Contacto</a></div><div><b>Contacto</b><a href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="mailto:crkpublicidad@yahoo.com">Correo electrónico</a><a href="https://github.com/IWANDEZU" target="_blank" rel="noopener noreferrer">GitHub · IWANDEZU</a><a href="https://www.behance.net/ivanmartinez20" target="_blank" rel="noopener noreferrer">Behance · Ivan Martínez</a></div><p>IWANDEZU · CRK Publicity · 2026</p></footer>
+
+  <a class="whatsapp-assistant" href="https://wa.me/573028402389?text=Hola%20CRK%20Publicity%2C%20quiero%20informaci%C3%B3n." target="_blank" rel="noopener noreferrer" aria-label="Hablar con el asistente de CRK Publicity por WhatsApp"><img src="assets/icons/social/whatsapp.svg" alt=""><span><b>Asistente WhatsApp</b><small>Respuesta directa</small></span></a>  <footer class="footer"><div><a class="logo" href="#inicio"><img src="assets/crk-publicity-logo.svg" alt="CRK Publicity"></a><p>Digitalizamos negocios sin quitarles lo humano.</p></div><div><b>Explora</b><a href="#servicios">Servicios</a><a href="#productos">Productos</a><a href="#trabajos">Trabajos</a><a href="#contacto">Contacto</a></div><div><b>Contacto</b><a href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="mailto:crkpublicidad@yahoo.com">Correo electrónico</a><a href="https://github.com/IWANDEZU" target="_blank" rel="noopener noreferrer">GitHub · IWANDEZU</a><a href="https://www.behance.net/ivanmartinez20" target="_blank" rel="noopener noreferrer">Behance · Ivan Martínez</a><a href="admin/" rel="nofollow">Acceso equipo</a></div><p>IWANDEZU · CRK Publicity · 2026</p></footer>
 
   <aside id="quote-panel" class="quote-panel" aria-hidden="true" aria-labelledby="quote-title">
     <button class="close" type="button" data-close-quote aria-label="Cerrar cotización">×</button><p class="kicker">Cotización estimada</p><h2 id="quote-title">Tu solución</h2><div id="quote-items" class="quote-items"><p class="empty">Todavía no agregaste servicios.</p></div><div class="quote-total"><span>Total estimado desde</span><strong id="quote-total">$0 COP</strong></div><a class="button primary" href="#contacto" data-close-quote>Solicitar propuesta <span>→</span></a><small>Valor demostrativo. El precio final depende del alcance confirmado.</small>

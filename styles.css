@@ -176,3 +176,12 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 @media(hover:hover){.hero-logo-stage:hover .hero-logo-mark img{animation-duration:2.8s}.hero-logo-stage:hover .hero-logo-mark::after{animation-duration:3s}}
 @media(max-width:640px){.hero-logo-mark{width:78%;top:50%}.hero-logo-stage .stat-card{transform:scale(.9);transform-origin:top left}.hero-logo-stage .message-card{transform:scale(.9);transform-origin:bottom right}}
 @media(prefers-reduced-motion:reduce){.hero-logo-stage::before,.hero-logo-stage::after,.hero-logo-mark img,.hero-logo-mark::after{animation:none}.hero-logo-mark::after{background-position:0 0,0 0;opacity:.56}}
+
+/* SECURE LEAD FORM & WHATSAPP ASSISTANT */
+.website-field{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}
+#lead-form .submit:disabled{opacity:.62;cursor:wait}.form-success.failed{border-color:rgba(255,94,94,.34);background:rgba(118,22,22,.18)}.form-success a{color:inherit;font-weight:850}
+.whatsapp-assistant{position:fixed;z-index:30;right:20px;bottom:20px;display:flex;align-items:center;gap:10px;padding:10px 14px 10px 10px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:linear-gradient(145deg,rgba(35,35,38,.88),rgba(15,15,16,.84));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 16px 45px rgba(0,0,0,.38),0 0 24px rgba(37,211,102,.12);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);text-decoration:none;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.whatsapp-assistant>img{width:38px;height:38px;padding:8px;border-radius:13px;background:rgba(37,211,102,.13);filter:drop-shadow(0 0 8px rgba(37,211,102,.42))}.whatsapp-assistant>span{display:grid;gap:2px}.whatsapp-assistant b{font-size:10px}.whatsapp-assistant small{color:#aeadb4;font-size:8px}
+@media(hover:hover){.whatsapp-assistant:hover{transform:translateY(-3px);border-color:rgba(37,211,102,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 20px 50px rgba(0,0,0,.4),0 0 28px rgba(37,211,102,.2)}}
+@media(max-width:640px){.whatsapp-assistant{right:12px;bottom:12px;padding:8px;border-radius:16px}.whatsapp-assistant>img{width:36px;height:36px}.whatsapp-assistant>span{display:none}}
+@media(prefers-reduced-motion:reduce){.whatsapp-assistant{transition:none}}

@@ -72,19 +72,21 @@
   nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => { nav.classList.remove('open'); menu.setAttribute('aria-expanded', 'false'); }));
 
   const form = document.querySelector('#lead-form');
-  const messages = { name: 'Escribe tu nombre.', email: 'Ingresa un correo válido.', business: 'Escribe el nombre del negocio.', need: 'Selecciona una opción.' };
+  const messages = { name: 'Escribe tu nombre.', email: 'Ingresa un correo válido.', phone: 'Ingresa un número de WhatsApp válido.', business: 'Escribe el nombre del negocio.', need: 'Selecciona una opción.' };
+  const backendUrl = import.meta.env.VITE_SUPABASE_URL;
+  const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
   function validate(field) {
     const error = field.parentElement.querySelector('.error');
     const valid = field.checkValidity();
     field.setAttribute('aria-invalid', String(!valid));
-    error.textContent = valid ? '' : messages[field.name];
+    if (error) error.textContent = valid ? '' : messages[field.name];
     return valid;
   }
-  form.querySelectorAll('input:not([type="checkbox"]), select').forEach((field) => field.addEventListener('blur', () => validate(field)));
-  form.addEventListener('submit', (event) => {
+  const leadFields = [...form.querySelectorAll('input:not([type="checkbox"]):not([type="hidden"]):not(#website), select')];
+  leadFields.forEach((field) => field.addEventListener('blur', () => validate(field)));
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const fields = [...form.querySelectorAll('input:not([type="checkbox"]), select')];
-    const fieldsValid = fields.map(validate).every(Boolean);
+    const fieldsValid = leadFields.map(validate).every(Boolean);
     const consent = document.querySelector('#consent');
     const consentError = document.querySelector('#consent-error');
     consentError.textContent = consent.checked ? '' : 'Debes autorizar el uso de los datos para continuar.';
@@ -92,12 +94,47 @@
       form.querySelector('[aria-invalid="true"]')?.focus();
       return;
     }
+    const submit = form.querySelector('[type="submit"]');
     const success = document.querySelector('#form-success');
-    success.classList.add('show');
-    success.focus();
-    form.reset();
-    fields.forEach((field) => field.removeAttribute('aria-invalid'));
+    const data = new FormData(form);
+    submit.disabled = true;
+    submit.firstChild.textContent = 'Enviando… ';
+    success.classList.remove('show', 'failed');
+    try {
+      if (!backendUrl || !publicKey) {
+        const message = `Hola CRK Publicity, soy ${data.get('name')} de ${data.get('business')}. Necesito: ${data.get('need')}. Mi correo es ${data.get('email')}.`;
+        window.open(`https://wa.me/573028402389?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+        success.querySelector('b').textContent = 'Continuemos por WhatsApp.';
+        success.querySelector('span').textContent = 'Abrimos una conversación con tus datos para atenderte directamente.';
+      } else {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        const response = await fetch(`${backendUrl}/functions/v1/public-lead`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: publicKey },
+          signal: controller.signal,
+          body: JSON.stringify({ name: data.get('name'), email: data.get('email'), phone: data.get('phone'), business: data.get('business'), need: data.get('need'), consent: consent.checked, website: data.get('website') })
+        });
+        clearTimeout(timeout);
+        if (!response.ok) throw new Error('Lead submission failed');
+        success.querySelector('b').textContent = 'Solicitud recibida.';
+        success.querySelector('span').textContent = 'Ya quedó registrada para que nuestro equipo pueda responderte.';
+      }
+      success.classList.add('show');
+      success.focus();
+      form.reset();
+      leadFields.forEach((field) => field.removeAttribute('aria-invalid'));
+    } catch (error) {
+      success.querySelector('b').textContent = 'No pudimos registrar la solicitud.';
+      success.querySelector('span').innerHTML = 'Inténtalo de nuevo o <a href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a>.';
+      success.classList.add('show', 'failed');
+      success.focus();
+    } finally {
+      submit.disabled = false;
+      submit.firstChild.textContent = 'Solicitar diagnóstico ';
+    }
   });
+
   function initProductSlider(slider) {
     const track = slider.querySelector('.product-slider-track');
     const slides = [...slider.querySelectorAll('.product-slide')];

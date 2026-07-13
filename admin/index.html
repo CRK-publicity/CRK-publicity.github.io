@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#080808">
+  <title>CRK CRM · Panel privado</title>
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <a class="skip" href="#workspace">Saltar al panel</a>
+  <header class="topbar"><a class="brand" href="../"><img src="../assets/crk-publicity-logo.svg" alt="CRK Publicity"><span>CRM</span></a><div><span id="session-name"></span><button id="logout" class="ghost" type="button" hidden>Cerrar sesión</button></div></header>
+  <main>
+    <section id="setup" class="center-card" hidden><span class="eyebrow">Configuración pendiente</span><h1>Conecta el backend para activar tu CRM.</h1><p>La interfaz está lista. Añade la URL y la clave pública de Supabase al archivo de entorno y vuelve a construir el sitio.</p><a href="https://github.com/IWANDEZU/crkpublicity/blob/main/BACKEND_SETUP.md" target="_blank" rel="noopener noreferrer">Ver guía de activación</a></section>
+    <section id="login" class="login-shell" hidden>
+      <div><span class="eyebrow">Panel privado</span><h1>Tus clientes,<br><em>en un solo lugar.</em></h1><p>Administra contactos, mensajes y oportunidades de CRK Publicity.</p></div>
+      <form id="login-form" class="glass"><h2>Iniciar sesión</h2><label>Correo<input name="email" type="email" autocomplete="email" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" minlength="8" required></label><button class="primary" type="submit">Entrar al CRM</button><p id="login-error" class="error" role="alert"></p></form>
+    </section>
+    <section id="workspace" class="workspace" hidden>
+      <aside class="sidebar"><nav><button class="nav-item active" data-view="inbox"><span>◉</span>Bandeja</button><button class="nav-item" data-view="clients"><span>◎</span>Clientes</button></nav><div class="security-note"><b>Datos protegidos</b><span>Acceso por usuario y permisos.</span></div></aside>
+      <div class="content">
+        <header class="page-head"><div><span class="eyebrow">CRK Publicity</span><h1 id="page-title">Bandeja de atención</h1></div><button id="refresh" class="ghost" type="button">Actualizar</button></header>
+        <div class="metrics"><article><span>Clientes</span><strong id="metric-clients">—</strong></article><article><span>Por atender</span><strong id="metric-waiting">—</strong></article><article><span>Oportunidades</span><strong id="metric-qualified">—</strong></article></div>
+        <section id="inbox-view" class="panel-grid">
+          <div class="panel list-panel"><div class="panel-title"><h2>Conversaciones</h2><span id="conversation-count">0</span></div><div id="conversation-list" class="conversation-list"></div></div>
+          <div class="panel chat-panel"><div id="chat-empty" class="empty-state"><span>◌</span><h2>Selecciona una conversación</h2><p>Verás el historial y podrás responder directamente por WhatsApp.</p></div><div id="chat" hidden><header class="chat-head"><div><b id="chat-name"></b><span id="chat-phone"></span></div><span id="chat-status" class="status"></span></header><div id="message-list" class="message-list" aria-live="polite"></div><form id="reply-form" class="reply-form"><label class="sr-only" for="reply">Respuesta</label><textarea id="reply" maxlength="4000" placeholder="Escribe una respuesta…" required></textarea><button type="submit">Enviar</button></form><p id="reply-error" class="error" role="alert"></p></div></div>
+        </section>
+        <section id="clients-view" class="panel" hidden><div class="panel-title"><div><h2>Clientes registrados</h2><p>Actualiza su etapa comercial sin perder el historial.</p></div><input id="client-search" type="search" placeholder="Buscar cliente…" aria-label="Buscar cliente"></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Contacto</th><th>Origen</th><th>Etapa</th><th>Última actividad</th></tr></thead><tbody id="client-table"></tbody></table></div></section>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>
