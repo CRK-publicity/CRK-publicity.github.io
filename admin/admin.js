@@ -5,6 +5,7 @@ const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const $ = (selector) => document.querySelector(selector);
 const setup = $("#setup"), login = $("#login"), workspace = $("#workspace");
 let supabase, activeConversation = null, contactsCache = [];
+let inviteFlow = /type=(invite|recovery)/.test(`${window.location.hash}${window.location.search}`);
 
 function show(element) { [setup, login, workspace].forEach((item) => { item.hidden = item !== element; }); }
 function toast(message) { const node = $("#toast"); node.textContent = message; node.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => node.classList.remove("show"), 3200); }
@@ -13,14 +14,15 @@ function el(tag, className, text) { const node = document.createElement(tag); if
 
 async function boot() {
   if (!supabaseUrl || !supabaseKey) { show(setup); return; }
-  supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
+  supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
   const { data } = await supabase.auth.getSession();
   await setSession(data.session);
-  supabase.auth.onAuthStateChange((_event, session) => setTimeout(() => setSession(session), 0));
+  supabase.auth.onAuthStateChange((event, session) => { if (["PASSWORD_RECOVERY", "SIGNED_IN"].includes(event) && /type=(invite|recovery)/.test(window.location.hash)) inviteFlow = true; setTimeout(() => setSession(session), 0); });
 }
 
 async function setSession(session) {
-  if (!session) { show(login); $("#logout").hidden = true; return; }
+  if (!session) { show(login); $("#login-form").hidden = false; $("#activation-form").hidden = true; $("#logout").hidden = true; return; }
+  if (inviteFlow) { show(login); $("#login-form").hidden = true; $("#activation-form").hidden = false; $("#logout").hidden = true; return; }
   show(workspace); $("#logout").hidden = false; $("#session-name").textContent = session.user.email || "";
   await loadDashboard();
 }
@@ -31,6 +33,17 @@ $("#login-form").addEventListener("submit", async (event) => {
   const { error } = await supabase.auth.signInWithPassword({ email: String(data.get("email")), password: String(data.get("password")) });
   if (error) $("#login-error").textContent = "No pudimos iniciar sesión. Revisa tus datos.";
   button.disabled = false;
+});
+$("#activation-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget), password = String(data.get("password") || ""), confirmation = String(data.get("confirmation") || "");
+  const button = event.currentTarget.querySelector("button"), errorNode = $("#activation-error"); errorNode.textContent = "";
+  if (password.length < 12 || password !== confirmation) { errorNode.textContent = "Las contraseñas deben coincidir y tener al menos 12 caracteres."; return; }
+  button.disabled = true;
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) { errorNode.textContent = "No se pudo guardar la contraseña. Solicita una nueva invitación."; button.disabled = false; return; }
+  inviteFlow = false; history.replaceState({}, document.title, `${location.pathname}`); toast("Cuenta activada correctamente");
+  const { data: sessionData } = await supabase.auth.getSession(); await setSession(sessionData.session); button.disabled = false;
 });
 $("#logout").addEventListener("click", () => supabase?.auth.signOut());
 $("#refresh").addEventListener("click", () => loadDashboard(true));
