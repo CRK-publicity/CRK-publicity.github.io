@@ -6,6 +6,7 @@ const $ = (selector) => document.querySelector(selector);
 const setup = $("#setup"), login = $("#login"), workspace = $("#workspace");
 let supabase, activeConversation = null, contactsCache = [];
 let inviteFlow = /type=(invite|recovery)/.test(`${window.location.hash}${window.location.search}`);
+let mfaFactorId = null;
 
 function show(element) { [setup, login, workspace].forEach((item) => { item.hidden = item !== element; }); }
 function toast(message) { const node = $("#toast"); node.textContent = message; node.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => node.classList.remove("show"), 3200); }
@@ -20,9 +21,44 @@ async function boot() {
   supabase.auth.onAuthStateChange((event, session) => { if (["PASSWORD_RECOVERY", "SIGNED_IN"].includes(event) && /type=(invite|recovery)/.test(window.location.hash)) inviteFlow = true; setTimeout(() => setSession(session), 0); });
 }
 
+function showAuthForm(activeForm) {
+  show(login);
+  ["#login-form", "#activation-form", "#mfa-form"].forEach((selector) => { $(selector).hidden = selector !== activeForm; });
+  $("#logout").hidden = true;
+}
+
+async function requireMfa() {
+  const { data: level, error: levelError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (levelError) { toast("No se pudo comprobar la seguridad de la sesión."); await supabase.auth.signOut(); return true; }
+  if (level.currentLevel === "aal2") return false;
+  showAuthForm("#mfa-form");
+  if (mfaFactorId) return true;
+  const { data: factorData, error: factorsError } = await supabase.auth.mfa.listFactors();
+  if (factorsError) { $("#mfa-error").textContent = "No se pudieron consultar los factores de seguridad."; return true; }
+  const verified = factorData.totp.find((factor) => factor.status === "verified");
+  if (verified) {
+    mfaFactorId = verified.id;
+    $("#mfa-title").textContent = "Confirma tu identidad";
+    $("#mfa-copy").textContent = "Ingresa el código actual de tu aplicación de autenticación.";
+    $("#mfa-enrollment").hidden = true;
+    return true;
+  }
+  const unverified = factorData.totp.find((factor) => factor.status === "unverified");
+  if (unverified) await supabase.auth.mfa.unenroll({ factorId: unverified.id });
+  const { data: enrollment, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "CRK CRM" });
+  if (enrollError) { $("#mfa-error").textContent = "No se pudo iniciar la verificación en dos pasos."; return true; }
+  mfaFactorId = enrollment.id;
+  $("#mfa-title").textContent = "Protege tu cuenta";
+  $("#mfa-copy").textContent = "Escanea el QR con una aplicación de autenticación y escribe el código generado.";
+  $("#mfa-qr").src = enrollment.totp.qr_code;
+  $("#mfa-enrollment").hidden = false;
+  return true;
+}
+
 async function setSession(session) {
-  if (!session) { show(login); $("#login-form").hidden = false; $("#activation-form").hidden = true; $("#logout").hidden = true; return; }
-  if (inviteFlow) { show(login); $("#login-form").hidden = true; $("#activation-form").hidden = false; $("#logout").hidden = true; return; }
+  if (!session) { mfaFactorId = null; showAuthForm("#login-form"); return; }
+  if (inviteFlow) { showAuthForm("#activation-form"); return; }
+  if (await requireMfa()) return;
   show(workspace); $("#logout").hidden = false; $("#session-name").textContent = session.user.email || "";
   await loadDashboard();
 }
@@ -43,6 +79,17 @@ $("#activation-form").addEventListener("submit", async (event) => {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) { errorNode.textContent = "No se pudo guardar la contraseña. Solicita una nueva invitación."; button.disabled = false; return; }
   inviteFlow = false; history.replaceState({}, document.title, `${location.pathname}`); toast("Cuenta activada correctamente");
+  const { data: sessionData } = await supabase.auth.getSession(); await setSession(sessionData.session); button.disabled = false;
+});
+$("#mfa-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const code = String(new FormData(event.currentTarget).get("code") || "").trim();
+  const button = event.currentTarget.querySelector("button"), errorNode = $("#mfa-error"); errorNode.textContent = "";
+  if (!mfaFactorId || !/^\d{6}$/.test(code)) { errorNode.textContent = "Ingresa un código válido de seis dígitos."; return; }
+  button.disabled = true;
+  const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code });
+  if (error) { errorNode.textContent = "El código no es válido o ya venció."; button.disabled = false; return; }
+  event.currentTarget.reset(); toast("Identidad verificada");
   const { data: sessionData } = await supabase.auth.getSession(); await setSession(sessionData.session); button.disabled = false;
 });
 $("#logout").addEventListener("click", () => supabase?.auth.signOut());
@@ -78,11 +125,11 @@ function renderConversations(items) {
 async function openConversation(conversation, contact) {
   activeConversation = conversation; $("#chat-empty").hidden = true; $("#chat").hidden = false;
   $("#chat-name").textContent = contact?.full_name || "Cliente"; $("#chat-phone").textContent = contact?.phone_e164 || "Sin teléfono";
-  $("#chat-status").textContent = conversation.status === "waiting" ? "Espera asesor" : conversation.status;
-  const { data, error } = await supabase.from("messages").select("id,direction,body,status,sent_at,message_type").eq("conversation_id", conversation.id).order("sent_at");
+  $("#chat-status").textContent = ({ waiting: "Esperando asesor", open: "Atención humana", bot: "Bot activo", closed: "Cerrada" }[conversation.status] || conversation.status);
+  const { data, error } = await supabase.from("messages").select("id,direction,body,status,sent_at,message_type").eq("conversation_id", conversation.id).order("sent_at", { ascending: false }).limit(200);
   if (error) { toast("No se pudo abrir el historial"); return; }
   const list = $("#message-list"); list.replaceChildren();
-  (data || []).forEach((message) => { const bubble = el("article", `message ${message.direction}`); bubble.append(el("p", "", message.body || `[${message.message_type}]`), el("time", "", formatDate(message.sent_at))); list.append(bubble); });
+  [...(data || [])].reverse().forEach((message) => { const bubble = el("article", `message ${message.direction}`); bubble.append(el("p", "", message.body || `[${message.message_type}]`), el("time", "", formatDate(message.sent_at))); list.append(bubble); });
   list.scrollTop = list.scrollHeight;
   await supabase.from("conversations").update({ unread_count: 0 }).eq("id", conversation.id);
 }

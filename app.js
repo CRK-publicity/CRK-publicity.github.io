@@ -19,7 +19,10 @@
     const entries = [...cart.entries()];
     count.textContent = String(entries.length);
     if (!entries.length) {
-      items.innerHTML = '<p class="empty">Todavía no agregaste servicios.</p>';
+      const empty = document.createElement('p');
+      empty.className = 'empty';
+      empty.textContent = 'Todavía no agregaste servicios.';
+      items.replaceChildren(empty);
       total.textContent = '$0 COP';
       return;
     }
@@ -55,7 +58,7 @@
     if (wasAdded) cart.delete(name); else cart.set(name, Number(button.dataset.price));
     button.classList.toggle('added', !wasAdded);
     button.firstChild.textContent = wasAdded ? 'Agregar ' : 'Agregado ';
-  renderCart();
+    renderCart();
     showToast(wasAdded ? 'Servicio retirado.' : 'Servicio agregado a tu cotización.');
   }));
   document.querySelectorAll('[data-open-quote]').forEach((button) => button.addEventListener('click', () => setPanel(true)));
@@ -108,15 +111,22 @@
         success.querySelector('span').textContent = 'Abrimos una conversación con tus datos para atenderte directamente.';
       } else {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        const response = await fetch(`${backendUrl}/functions/v1/public-lead`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', apikey: publicKey },
-          signal: controller.signal,
-          body: JSON.stringify({ name: data.get('name'), email: data.get('email'), phone: data.get('phone'), business: data.get('business'), need: data.get('need'), consent: consent.checked, website: data.get('website') })
-        });
-        clearTimeout(timeout);
-        if (!response.ok) throw new Error('Lead submission failed');
+        const timeout = window.setTimeout(() => controller.abort(), 12000);
+        let response;
+        try {
+          response = await fetch(`${backendUrl}/functions/v1/public-lead`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: publicKey },
+            signal: controller.signal,
+            body: JSON.stringify({ name: data.get('name'), email: data.get('email'), phone: data.get('phone'), business: data.get('business'), need: data.get('need'), consent: consent.checked, website: data.get('website') })
+          });
+        } finally {
+          window.clearTimeout(timeout);
+        }
+        if (!response.ok) {
+          const reason = response.status === 429 ? 'Espera unos minutos antes de volver a intentarlo.' : 'No pudimos registrar la solicitud.';
+          throw new Error(reason);
+        }
         success.querySelector('b').textContent = 'Solicitud recibida.';
         success.querySelector('span').textContent = 'Ya quedó registrada para que nuestro equipo pueda responderte.';
       }
@@ -126,7 +136,13 @@
       leadFields.forEach((field) => field.removeAttribute('aria-invalid'));
     } catch (error) {
       success.querySelector('b').textContent = 'No pudimos registrar la solicitud.';
-      success.querySelector('span').innerHTML = 'Inténtalo de nuevo o <a href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a>.';
+      const detail = success.querySelector('span');
+      const link = document.createElement('a');
+      link.href = 'https://wa.me/573028402389';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'escríbenos por WhatsApp';
+      detail.replaceChildren(document.createTextNode(`${error.message || 'Inténtalo de nuevo'} También puedes `), link, document.createTextNode('.'));
       success.classList.add('show', 'failed');
       success.focus();
     } finally {

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://iwandezu.github.io/crkpublicity/sitemap.xml
