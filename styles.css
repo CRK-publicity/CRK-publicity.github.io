@@ -104,3 +104,25 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 #servicios,#productos,#trabajos,#proceso,#resultados,#contacto{scroll-margin-top:105px}
 #trabajos .work-card:nth-child(11) img,#trabajos .work-card:nth-child(12) img{filter:brightness(1.38)}
 @media(hover:hover){#trabajos .work-card:nth-child(11):hover img,#trabajos .work-card:nth-child(12):hover img{filter:brightness(1.48) saturate(1.08)}}
+/* CRK GLASS SOCIALS & FULL THUMBNAILS */
+.work-card,.work-card-featured,.work-card-wide{grid-column:auto;min-height:0;aspect-ratio:808/632}
+.work-card img{object-fit:contain;object-position:center;background:#09090a}
+@media(hover:hover){.work-card:hover img{transform:scale(1.012)}}
+.header>.logo{position:relative;isolation:isolate;width:max-content;padding:7px 11px;overflow:hidden;border:1px solid rgba(255,122,26,.24);border-radius:17px;background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 0 1px rgba(255,107,0,.05),0 0 20px rgba(255,107,0,.15);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+.header>.logo::before{content:"";position:absolute;z-index:0;inset:-90% -45%;background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.22) 49%,rgba(255,122,26,.16) 53%,transparent 60%);transform:translateX(-55%) rotate(8deg);animation:crk-glass-shine 7s ease-in-out infinite;pointer-events:none}
+.header>.logo img{position:relative;z-index:1;filter:drop-shadow(0 0 5px rgba(255,107,0,.48)) drop-shadow(0 0 13px rgba(255,107,0,.18))}
+@keyframes crk-glass-shine{0%,64%,100%{transform:translateX(-58%) rotate(8deg);opacity:0}72%{opacity:.68}86%{transform:translateX(58%) rotate(8deg);opacity:0}}
+.brand-contact{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.09);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(17,17,19,.83));box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 22px 70px rgba(0,0,0,.28);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.brand-contact::before{content:"";position:absolute;inset:-45% 20% auto;width:60%;height:230px;border-radius:50%;background:rgba(255,107,0,.12);filter:blur(70px);pointer-events:none}
+.brand-contact>img,.brand-contact-links{position:relative;z-index:1}
+.brand-contact-links{width:min(100%,920px);margin:24px auto 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.brand-contact-links .social-link{position:relative;min-width:0;min-height:50px;display:flex;align-items:center;justify-content:flex-start;gap:9px;padding:0 12px;overflow:hidden;border:1px solid rgba(255,255,255,.11);border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025));color:#f5f5f7;box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 0 16px rgba(255,107,0,.055);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-decoration:none;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.brand-contact-links .social-link::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.09) 48%,transparent 72%);transform:translateX(-110%);transition:transform .55s ease}
+.brand-contact-links .social-link>span{min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit;text-transform:none}
+.brand-contact-links .social-link>.social-icon{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border:1px solid rgba(255,107,0,.22);border-radius:10px;background:rgba(255,107,0,.075);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 0 13px rgba(255,107,0,.12)}
+.brand-contact-links .social-icon img{width:17px;height:17px;display:block;object-fit:contain;filter:drop-shadow(0 0 5px rgba(255,107,0,.58))}
+.brand-contact-links .social-link>span:last-child{overflow:hidden;font-size:10px;font-weight:750;letter-spacing:.01em;text-overflow:ellipsis;white-space:nowrap}
+@media(hover:hover){.header>.logo:hover{border-color:rgba(255,122,26,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 24px rgba(255,107,0,.24)}.brand-contact-links .social-link:hover{transform:translateY(-2px);border-color:rgba(255,107,0,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 0 20px rgba(255,107,0,.15)}.brand-contact-links .social-link:hover::before{transform:translateX(110%)}}
+@media(max-width:900px){.brand-contact-links{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.work-card,.work-card-featured,.work-card-wide{min-height:0;aspect-ratio:808/632}.header>.logo{padding:6px 8px;border-radius:14px}.brand-contact-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.brand-contact-links .social-link{min-height:48px;padding:0 10px;border-radius:14px}}
+@media(prefers-reduced-motion:reduce){.header>.logo::before{animation:none}.brand-contact-links .social-link::before{transition:none}}
