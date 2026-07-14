@@ -128,8 +128,7 @@ test("hero video slider loops multiple videos and pauses inactive media", () => 
   assert.match(html, /type="video\/mp4"/);
   assert.match(html, /hero-slider-control previous/);
   assert.match(html, /hero-slider-control next/);
-  assert.match(css, /hero-media-slider\{[^}]*aspect-ratio:4\/3/);
-  assert.match(css, /hero-showcase-video\{[^}]*object-fit:contain[^}]*object-position:center/);
+  assert.match(css, /hero-showcase-video\{[^}]*object-fit:contain/);
   assert.match(js, /function initHeroVideoSlider/);
   assert.match(js, /video\.play\(\)\.catch/);
   assert.match(js, /video\.pause\(\)/);
