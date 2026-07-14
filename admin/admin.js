@@ -7,11 +7,14 @@ const setup = $("#setup"), login = $("#login"), workspace = $("#workspace");
 let supabase, activeConversation = null, contactsCache = [];
 let inviteFlow = /type=(invite|recovery)/.test(`${window.location.hash}${window.location.search}`);
 let mfaFactorId = null;
+let dashboardTimer = null;
 
 function show(element) { [setup, login, workspace].forEach((item) => { item.hidden = item !== element; }); }
 function toast(message) { const node = $("#toast"); node.textContent = message; node.classList.add("show"); clearTimeout(toast.timer); toast.timer = setTimeout(() => node.classList.remove("show"), 3200); }
 function formatDate(value) { if (!value) return "—"; return new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
 function el(tag, className, text) { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; }
+function stopDashboardRefresh() { if (dashboardTimer) window.clearInterval(dashboardTimer); dashboardTimer = null; }
+function startDashboardRefresh() { stopDashboardRefresh(); dashboardTimer = window.setInterval(() => { if (!document.hidden && !workspace.hidden) loadDashboard(); }, 30000); }
 
 async function boot() {
   if (!supabaseUrl || !supabaseKey) { show(setup); return; }
@@ -56,11 +59,11 @@ async function requireMfa() {
 }
 
 async function setSession(session) {
-  if (!session) { mfaFactorId = null; showAuthForm("#login-form"); return; }
+  if (!session) { mfaFactorId = null; stopDashboardRefresh(); showAuthForm("#login-form"); return; }
   if (inviteFlow) { showAuthForm("#activation-form"); return; }
   if (await requireMfa()) return;
   show(workspace); $("#logout").hidden = false; $("#session-name").textContent = session.user.email || "";
-  await loadDashboard();
+  await loadDashboard(); startDashboardRefresh();
 }
 
 $("#login-form").addEventListener("submit", async (event) => {

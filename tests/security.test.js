@@ -83,6 +83,7 @@ test("CRM renders the complete lead request", () => {
   for (const id of ["client-detail", "detail-company", "detail-email", "detail-whatsapp", "detail-need", "request-list"]) assert.match(html, new RegExp(`id="${id}"`));
   assert.match(admin, /from\("activities"\)/);
   assert.match(admin, /renderClientDetails/);
+  assert.match(admin, /setInterval/);
   assert.match(lead, /message_type: "lead_form"/);
   assert.match(lead, /metadata: \{ company, email, phone, consent_at: now/);
 });
