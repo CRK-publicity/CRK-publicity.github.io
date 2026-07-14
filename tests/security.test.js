@@ -110,5 +110,6 @@ test("hero uses the transparent studio cutout and accessible RGB motion", () => 
   assert.match(html, /crk-designer-studio-transparent\.webp/);
   assert.doesNotMatch(html, /class="hero-rgb-logo"/);
   assert.match(css, /@keyframes hero-photo-logo-aura/);
+  assert.match(css, /hero-photo-stage\{[^}]*border:0[^}]*background:transparent[^}]*box-shadow:none[^}]*overflow:visible/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
