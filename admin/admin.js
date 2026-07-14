@@ -122,16 +122,56 @@ function renderConversations(items) {
   });
 }
 
-async function openConversation(conversation, contact) {
+function renderClientDetails(contact, activities, channel) {
+  const stageLabels = { lead: "Lead", qualified: "Calificado", proposal: "Propuesta", customer: "Cliente", inactive: "Inactivo" };
+  const sourceLabels = { web: "Formulario web", whatsapp: "WhatsApp" };
+  const leadRequests = activities.filter((item) => item.activity_type === "lead_form");
+  const latest = leadRequests[0];
+  const metadata = latest?.metadata && typeof latest.metadata === "object" ? latest.metadata : {};
+  $("#detail-company").textContent = contact.company || metadata.company || "No informado";
+  const email = $("#detail-email");
+  email.textContent = contact.email || metadata.email || "No informado";
+  if (contact.email || metadata.email) email.href = `mailto:${contact.email || metadata.email}`; else email.removeAttribute("href");
+  const phone = contact.phone_e164 || metadata.phone || "";
+  const whatsapp = $("#detail-whatsapp");
+  whatsapp.textContent = phone || "No informado";
+  if (phone) { whatsapp.href = `https://wa.me/${phone.replace(/\D/g, "")}`; whatsapp.target = "_blank"; whatsapp.rel = "noopener noreferrer"; } else whatsapp.removeAttribute("href");
+  $("#detail-source").textContent = sourceLabels[contact.source] || contact.source || (channel === "web" ? "Formulario web" : "WhatsApp");
+  $("#detail-stage").textContent = stageLabels[contact.lifecycle_stage] || contact.lifecycle_stage || "Lead";
+  $("#detail-consent").textContent = contact.consent_status === "granted" ? `Autorizado · ${formatDate(contact.consent_at)}` : "Pendiente";
+  $("#detail-need").textContent = latest?.summary || (channel === "whatsapp" ? "Conversación iniciada por WhatsApp" : "Sin solicitud registrada");
+  $("#detail-received").textContent = latest ? `Recibida ${formatDate(latest.created_at)}` : `Primer contacto ${formatDate(contact.first_seen_at)}`;
+  $("#request-count").textContent = String(leadRequests.length);
+  const history = $("#request-history"), list = $("#request-list");
+  history.hidden = leadRequests.length < 2; list.replaceChildren();
+  leadRequests.slice(0, 10).forEach((request) => { const item = el("article"); item.append(el("strong", "", request.summary), el("time", "", formatDate(request.created_at))); list.append(item); });
+}
+
+async function openConversation(conversation, contactPreview) {
   activeConversation = conversation; $("#chat-empty").hidden = true; $("#chat").hidden = false;
-  $("#chat-name").textContent = contact?.full_name || "Cliente"; $("#chat-phone").textContent = contact?.phone_e164 || "Sin teléfono";
   $("#chat-status").textContent = ({ waiting: "Esperando asesor", open: "Atención humana", bot: "Bot activo", closed: "Cerrada" }[conversation.status] || conversation.status);
-  const { data, error } = await supabase.from("messages").select("id,direction,body,status,sent_at,message_type").eq("conversation_id", conversation.id).order("sent_at", { ascending: false }).limit(200);
-  if (error) { toast("No se pudo abrir el historial"); return; }
+  const [messagesResult, contactResult, activitiesResult] = await Promise.all([
+    supabase.from("messages").select("id,direction,body,status,sent_at,message_type").eq("conversation_id", conversation.id).order("sent_at", { ascending: false }).limit(200),
+    supabase.from("contacts").select("id,full_name,phone_e164,email,company,source,lifecycle_stage,consent_status,consent_at,first_seen_at,last_seen_at").eq("id", conversation.contact_id).single(),
+    supabase.from("activities").select("id,activity_type,summary,metadata,created_at").eq("contact_id", conversation.contact_id).order("created_at", { ascending: false }).limit(20),
+  ]);
+  if (messagesResult.error || contactResult.error || activitiesResult.error) { toast("No se pudo abrir el detalle del cliente"); return; }
+  const contact = contactResult.data || contactPreview || {};
+  const activities = activitiesResult.data || [];
+  $("#chat-name").textContent = contact.full_name || "Cliente"; $("#chat-phone").textContent = contact.phone_e164 || "Sin teléfono";
+  renderClientDetails(contact, activities, conversation.channel);
+  const canReply = conversation.channel === "whatsapp";
+  $("#reply-form").hidden = !canReply; $("#channel-note").hidden = canReply; $("#reply-error").textContent = "";
   const list = $("#message-list"); list.replaceChildren();
-  [...(data || [])].reverse().forEach((message) => { const bubble = el("article", `message ${message.direction}`); bubble.append(el("p", "", message.body || `[${message.message_type}]`), el("time", "", formatDate(message.sent_at))); list.append(bubble); });
+  [...(messagesResult.data || [])].reverse().forEach((message) => { const bubble = el("article", `message ${message.direction}`); bubble.append(el("p", "", message.body || `[${message.message_type}]`), el("time", "", formatDate(message.sent_at))); list.append(bubble); });
+  if (!messagesResult.data?.length) {
+    const latestRequest = activities.find((item) => item.activity_type === "lead_form");
+    if (latestRequest) { const bubble = el("article", "message inbound"); bubble.append(el("p", "", `Solicitud: ${latestRequest.summary}`), el("time", "", formatDate(latestRequest.created_at))); list.append(bubble); }
+    else list.append(el("p", "empty-list", "Aún no hay mensajes en esta conversación."));
+  }
   list.scrollTop = list.scrollHeight;
-  await supabase.from("conversations").update({ unread_count: 0 }).eq("id", conversation.id);
+  const { error: readError } = await supabase.from("conversations").update({ unread_count: 0 }).eq("id", conversation.id);
+  if (readError) toast("No se pudo marcar la conversación como leída");
 }
 
 $("#reply-form").addEventListener("submit", async (event) => {

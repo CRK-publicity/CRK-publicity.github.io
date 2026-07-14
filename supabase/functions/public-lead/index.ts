@@ -65,9 +65,12 @@ Deno.serve(async (request) => {
       if (result.error) throw result.error;
       contact = result.data;
     }
-    const conversationResult = await client.from("conversations").upsert({ contact_id: contact.id, channel: "web", status: "open", last_message_at: now }, { onConflict: "contact_id,channel" }).select("id").single();
+    const conversationResult = await client.from("conversations").upsert({ contact_id: contact.id, channel: "web", status: "open", unread_count: 1, last_message_at: now }, { onConflict: "contact_id,channel" }).select("id").single();
     if (conversationResult.error) throw conversationResult.error;
-    const activityResult = await client.from("activities").insert({ contact_id: contact.id, activity_type: "lead_form", summary: need, metadata: { company, page: "portfolio" } });
+    const requestMessage = `Nueva solicitud desde la web\n\nServicio: ${need}\nNegocio: ${company}\nCliente: ${name}\nCorreo: ${email}\nWhatsApp: ${phone}`;
+    const messageResult = await client.from("messages").insert({ conversation_id: conversationResult.data.id, contact_id: contact.id, direction: "inbound", message_type: "lead_form", body: requestMessage, status: "received", sent_at: now });
+    if (messageResult.error) throw messageResult.error;
+    const activityResult = await client.from("activities").insert({ contact_id: contact.id, activity_type: "lead_form", summary: need, metadata: { company, email, phone, consent_at: now, page: "portfolio" } });
     if (activityResult.error) throw activityResult.error;
     return json({ accepted: true }, 202, cors);
   } catch (error) {

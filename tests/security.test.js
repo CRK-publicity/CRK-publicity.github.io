@@ -76,3 +76,13 @@ test("cPanel package includes defensive HTTP headers", () => {
   const apache = read("public/.htaccess");
   for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Permissions-Policy", "Strict-Transport-Security"]) assert.match(apache, new RegExp(header));
 });
+test("CRM renders the complete lead request", () => {
+  const html = read("admin/index.html");
+  const admin = read("admin/admin.js");
+  const lead = read("supabase/functions/public-lead/index.ts");
+  for (const id of ["client-detail", "detail-company", "detail-email", "detail-whatsapp", "detail-need", "request-list"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(admin, /from\("activities"\)/);
+  assert.match(admin, /renderClientDetails/);
+  assert.match(lead, /message_type: "lead_form"/);
+  assert.match(lead, /metadata: \{ company, email, phone, consent_at: now/);
+});
