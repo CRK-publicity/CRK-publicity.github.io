@@ -3,6 +3,9 @@ project_id = "crk-publicity"
 [functions.public-lead]
 verify_jwt = false
 
+[functions.track-event]
+verify_jwt = false
+
 [functions.whatsapp-webhook]
 verify_jwt = false
 

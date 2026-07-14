@@ -87,3 +87,20 @@ test("CRM renders the complete lead request", () => {
   assert.match(lead, /message_type: "lead_form"/);
   assert.match(lead, /metadata: \{ company, email, phone, consent_at: now/);
 });
+test("analytics counts visits and clicks privately", () => {
+  const app = read("app.js");
+  const admin = read("admin/admin.js");
+  const html = read("admin/index.html");
+  const analytics = read("supabase/functions/track-event/index.ts");
+  const sql = read("supabase/migrations/202607130004_site_analytics.sql");
+  assert.match(app, /trackSiteEvent\('visit'\)/);
+  assert.match(app, /trackSiteEvent\('click'\)/);
+  assert.match(analytics, /VALID_EVENTS/);
+  assert.match(analytics, /sha256/);
+  assert.match(sql, /record_site_event/);
+  assert.match(sql, /current_clicks >= 100/);
+  assert.match(sql, /force row level security/g);
+  assert.match(admin, /analytics_daily/);
+  assert.match(html, /id="metric-visits"/);
+  assert.match(html, /id="metric-clicks"/);
+});

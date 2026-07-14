@@ -78,6 +78,21 @@
   const messages = { name: 'Escribe tu nombre.', email: 'Ingresa un correo válido.', phone: 'Ingresa un número de WhatsApp válido.', business: 'Escribe el nombre del negocio.', need: 'Selecciona una opción.' };
   const backendUrl = import.meta.env.VITE_SUPABASE_URL;
   const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  function trackSiteEvent(eventType) {
+    if (!backendUrl || !publicKey) return;
+    void fetch(`${backendUrl}/functions/v1/track-event`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: publicKey },
+      body: JSON.stringify({ eventType }),
+      keepalive: true
+    }).catch(() => undefined);
+  }
+  trackSiteEvent('visit');
+  document.addEventListener('click', (event) => {
+    if (!event.isTrusted) return;
+    const action = event.target.closest('a[href], button');
+    if (action && !action.disabled) trackSiteEvent('click');
+  }, { capture: true });
   function validate(field) {
     const error = field.parentElement.querySelector('.error');
     const valid = field.checkValidity();

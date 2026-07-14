@@ -99,16 +99,20 @@ $("#logout").addEventListener("click", () => supabase?.auth.signOut());
 $("#refresh").addEventListener("click", () => loadDashboard(true));
 
 async function loadDashboard(notify = false) {
-  const [contacts, conversations] = await Promise.all([
+  const [contacts, conversations, analytics] = await Promise.all([
     supabase.from("contacts").select("id,full_name,phone_e164,email,company,source,lifecycle_stage,last_seen_at").order("last_seen_at", { ascending: false }).limit(500),
     supabase.from("conversations").select("id,contact_id,status,channel,unread_count,last_message_at,contacts(full_name,phone_e164,company)").order("last_message_at", { ascending: false }).limit(100),
+    supabase.from("analytics_daily").select("visits,clicks").order("metric_date", { ascending: false }).limit(3660),
   ]);
-  if (contacts.error || conversations.error) { toast("No se pudo cargar el CRM. Revisa los permisos."); return; }
+  if (contacts.error || conversations.error || analytics.error) { toast("No se pudo cargar el CRM. Revisa los permisos."); return; }
   contactsCache = contacts.data || [];
   renderContacts(contactsCache); renderConversations(conversations.data || []);
   $("#metric-clients").textContent = contactsCache.length;
   $("#metric-qualified").textContent = contactsCache.filter((item) => ["qualified", "proposal"].includes(item.lifecycle_stage)).length;
   $("#metric-waiting").textContent = (conversations.data || []).filter((item) => item.status === "waiting").length;
+  const traffic = (analytics.data || []).reduce((totals, day) => ({ visits: totals.visits + Number(day.visits || 0), clicks: totals.clicks + Number(day.clicks || 0) }), { visits: 0, clicks: 0 });
+  $("#metric-visits").textContent = traffic.visits.toLocaleString("es-CO");
+  $("#metric-clicks").textContent = traffic.clicks.toLocaleString("es-CO");
   if (notify) toast("Información actualizada");
 }
 
