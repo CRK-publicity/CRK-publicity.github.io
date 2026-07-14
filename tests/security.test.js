@@ -117,3 +117,11 @@ test("hero uses the transparent 3D mascot, a three-second loop and one RGB logo"
   assert.match(css, /hero-photo-stage\{[^}]*border:0[^}]*background:transparent[^}]*box-shadow:none[^}]*overflow:visible/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
+test("hero includes the second chart video with safe automatic looping", () => {
+  const html = read("index.html");
+  const css = read("styles.css");
+  assert.match(html, /<video class="hero-chart-video" autoplay muted loop playsinline preload="metadata"/);
+  assert.match(html, /assets\/video\/five-bar-chart\.mp4/);
+  assert.match(html, /type="video\/mp4"/);
+  assert.match(css, /hero-chart-video\{[^}]*object-fit:cover/);
+});
