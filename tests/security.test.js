@@ -111,8 +111,9 @@ test("hero uses the transparent 3D mascot, a three-second loop and one RGB logo"
   assert.match(html, /class="hero-mascot"/);
   assert.equal((html.match(/class="hero-rgb-logo"/g) || []).length, 1);
   assert.match(html, /hero-rgb-logo[^]*crk-publicity-logo\.svg/);
-  assert.match(css, /@keyframes hero-photo-logo-aura/);
   assert.match(css, /hero-mascot\{[^}]*animation:hero-mascot-3d-loop 3s/);
+  assert.match(css, /hero-mascot\{[^}]*filter:none/);
+  assert.doesNotMatch(css, /hero-photo-stage::after\{/);
   assert.match(css, /@keyframes hero-mascot-3d-loop/);
   assert.match(css, /hero-photo-stage\{[^}]*border:0[^}]*background:transparent[^}]*box-shadow:none[^}]*overflow:visible/);
   assert.match(css, /prefers-reduced-motion:reduce/);
