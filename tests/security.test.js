@@ -104,3 +104,11 @@ test("analytics counts visits and clicks privately", () => {
   assert.match(html, /id="metric-visits"/);
   assert.match(html, /id="metric-clicks"/);
 });
+test("hero uses the transparent studio cutout and accessible RGB motion", () => {
+  const html = read("index.html");
+  const css = read("styles.css");
+  assert.match(html, /crk-designer-studio-transparent\.webp/);
+  assert.match(html, /class="hero-rgb-logo"/);
+  assert.match(css, /@keyframes hero-rgb-logo-glow/);
+  assert.match(css, /prefers-reduced-motion:reduce/);
+});
