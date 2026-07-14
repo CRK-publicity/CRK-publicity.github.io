@@ -104,11 +104,12 @@ test("analytics counts visits and clicks privately", () => {
   assert.match(html, /id="metric-visits"/);
   assert.match(html, /id="metric-clicks"/);
 });
-test("hero uses the transparent studio cutout and accessible RGB motion", () => {
+test("hero uses the friendly transparent cutout and one accessible RGB logo", () => {
   const html = read("index.html");
   const css = read("styles.css");
-  assert.match(html, /crk-designer-studio-transparent\.webp/);
-  assert.doesNotMatch(html, /class="hero-rgb-logo"/);
+  assert.match(html, /crk-friendly-designer-transparent\.webp/);
+  assert.equal((html.match(/class="hero-rgb-logo"/g) || []).length, 1);
+  assert.match(html, /hero-rgb-logo[^]*crk-publicity-logo\.svg/);
   assert.match(css, /@keyframes hero-photo-logo-aura/);
   assert.match(css, /hero-photo-stage\{[^}]*border:0[^}]*background:transparent[^}]*box-shadow:none[^}]*overflow:visible/);
   assert.match(css, /prefers-reduced-motion:reduce/);

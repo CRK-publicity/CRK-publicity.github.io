@@ -188,9 +188,13 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 /* TRANSPARENT DESIGNER HERO + RGB LOGO */
 .hero-art.hero-photo-stage{isolation:isolate;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
 .hero-photo-stage::before{content:"";position:absolute;z-index:0;inset:-42%;background:conic-gradient(from 0deg,rgba(255,45,85,.7),rgba(0,255,191,.55),rgba(0,122,255,.68),rgba(175,82,222,.62),rgba(255,45,85,.7));filter:blur(72px);opacity:.16;animation:hero-rgb-ambient 12s linear infinite;pointer-events:none}
-.hero-photo-stage::after{content:"";position:absolute;z-index:1;inset:-6%;background:radial-gradient(circle at 78% 17%,rgba(255,45,85,.3),transparent 17%),radial-gradient(circle at 84% 12%,rgba(0,199,255,.24),transparent 24%);mix-blend-mode:screen;animation:hero-photo-logo-aura 6s ease-in-out infinite;pointer-events:none}
+.hero-photo-stage::after{content:"";position:absolute;z-index:1;inset:-6%;background:radial-gradient(circle at 72% 20%,rgba(255,45,85,.23),transparent 18%),radial-gradient(circle at 79% 15%,rgba(0,199,255,.2),transparent 25%);mix-blend-mode:screen;animation:hero-photo-logo-aura 6s ease-in-out infinite;pointer-events:none}
 .hero-portrait{position:absolute;z-index:2;left:50%;bottom:-6%;width:112%;max-width:none;height:auto;display:block;transform:translateX(-50%);filter:drop-shadow(0 28px 34px rgba(0,0,0,.5));object-fit:contain}
+.hero-rgb-logo{position:absolute;z-index:4;top:4%;left:3%;width:39%;isolation:isolate;filter:drop-shadow(0 5px 6px rgba(0,0,0,.48));pointer-events:none}
+.hero-rgb-logo::before{content:"";position:absolute;z-index:-1;inset:-22%;background:conic-gradient(from 30deg,rgba(255,45,85,.78),rgba(0,255,191,.64),rgba(0,122,255,.75),rgba(175,82,222,.72),rgba(255,45,85,.78));filter:blur(19px);opacity:.38;animation:hero-rgb-ambient 9s linear infinite}
+.hero-rgb-logo img{position:relative;z-index:1;width:100%;height:auto;display:block;filter:drop-shadow(0 -1px 0 rgba(255,255,255,.55)) drop-shadow(0 0 7px rgba(255,107,0,.74))}
+.hero-rgb-logo::after{content:"";position:absolute;z-index:2;inset:0;background:linear-gradient(108deg,transparent 34%,rgba(255,255,255,.08) 41%,rgba(255,255,255,.96) 49%,rgba(255,184,120,.42) 55%,transparent 64%) 180% 0/270% 100% no-repeat;-webkit-mask:url("assets/crk-publicity-logo.svg") center/contain no-repeat;mask:url("assets/crk-publicity-logo.svg") center/contain no-repeat;mix-blend-mode:screen;animation:hero-logo-glint 6.2s cubic-bezier(.22,.8,.25,1) infinite}
 @keyframes hero-rgb-ambient{to{transform:rotate(360deg)}}
 @keyframes hero-photo-logo-aura{0%,100%{filter:hue-rotate(0deg);opacity:.62}50%{filter:hue-rotate(150deg);opacity:1}}
-@media(max-width:640px){.hero-portrait{width:116%;bottom:-3%}}
-@media(prefers-reduced-motion:reduce){.hero-photo-stage::before,.hero-photo-stage::after{animation:none}.hero-photo-stage::after{opacity:.72}}
+@media(max-width:640px){.hero-portrait{width:116%;bottom:-3%}.hero-rgb-logo{top:3%;left:2%;width:42%}}
+@media(prefers-reduced-motion:reduce){.hero-photo-stage::before,.hero-photo-stage::after,.hero-rgb-logo::before,.hero-rgb-logo::after{animation:none}.hero-photo-stage::after{opacity:.72}.hero-rgb-logo::before{opacity:.3}.hero-rgb-logo::after{background-position:0 0}}
