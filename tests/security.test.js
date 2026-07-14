@@ -111,17 +111,26 @@ test("hero uses the transparent 3D mascot, a three-second loop and one RGB logo"
   assert.match(html, /class="hero-mascot"/);
   assert.equal((html.match(/class="hero-rgb-logo"/g) || []).length, 1);
   assert.match(html, /hero-rgb-logo[^]*crk-publicity-logo\.svg/);
-  assert.match(css, /@keyframes hero-photo-logo-aura/);
   assert.match(css, /hero-mascot\{[^}]*animation:hero-mascot-3d-loop 3s/);
   assert.match(css, /@keyframes hero-mascot-3d-loop/);
-  assert.match(css, /hero-photo-stage\{[^}]*border:0[^}]*background:transparent[^}]*box-shadow:none[^}]*overflow:visible/);
+  assert.match(css, /hero-mascot-slide\{/);
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
-test("hero includes the second chart video with safe automatic looping", () => {
+test("hero video slider loops multiple videos and pauses inactive media", () => {
   const html = read("index.html");
   const css = read("styles.css");
-  assert.match(html, /<video class="hero-chart-video" autoplay muted loop playsinline preload="metadata"/);
+  const js = read("app.js");
+  assert.match(html, /data-hero-slider/);
+  assert.equal((html.match(/data-hero-video/g) || []).length, 2);
+  assert.match(html, /crk-corporate-brand-film-v3\.mp4/);
   assert.match(html, /assets\/video\/five-bar-chart\.mp4/);
+  assert.equal((html.match(/autoplay muted loop playsinline preload="metadata"/g) || []).length, 2);
   assert.match(html, /type="video\/mp4"/);
-  assert.match(css, /hero-chart-video\{[^}]*object-fit:cover/);
+  assert.match(html, /hero-slider-control previous/);
+  assert.match(html, /hero-slider-control next/);
+  assert.match(css, /hero-showcase-video\{[^}]*object-fit:contain/);
+  assert.match(js, /function initHeroVideoSlider/);
+  assert.match(js, /video\.play\(\)\.catch/);
+  assert.match(js, /video\.pause\(\)/);
+  assert.match(js, /IntersectionObserver/);
 });
