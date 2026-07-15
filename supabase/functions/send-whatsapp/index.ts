@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.3";
-import { adminClient, allowedOrigin, corsHeaders, json, readBodyLimited, sendWhatsAppText, verifiedJwtPayload } from "../_shared/backend.ts";
+import { adminClient, allowedOrigin, corsHeaders, json, readBodyLimited, sendWhatsAppText } from "../_shared/backend.ts";
 
 const MAX_BODY_BYTES = 8_192;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -22,7 +22,8 @@ Deno.serve(async (request) => {
     const userClient = createClient(url, anon, { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
     const { data: userData, error: userError } = await userClient.auth.getUser(accessToken);
     if (userError || !userData.user) return json({ error: "Sesión inválida" }, 401, cors);
-    if (verifiedJwtPayload(accessToken)?.aal !== "aal2") return json({ error: "Se requiere verificación en dos pasos" }, 403, cors);
+    const { data: assurance, error: assuranceError } = await userClient.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (assuranceError || assurance?.currentLevel !== "aal2") return json({ error: "Se requiere verificación en dos pasos" }, 403, cors);
 
     const admin = adminClient();
     const { data: profile, error: profileError } = await admin.from("profiles").select("role").eq("user_id", userData.user.id).maybeSingle();

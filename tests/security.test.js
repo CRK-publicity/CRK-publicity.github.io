@@ -64,6 +64,15 @@ test("edge functions pin dependencies and bound untrusted requests", () => {
   assert.doesNotMatch(`${lead}${webhook}`, /request\.arrayBuffer/);
 });
 
+test("WhatsApp authorization verifies MFA with the authenticated Supabase client", () => {
+  const shared = read("supabase/functions/_shared/backend.ts");
+  const sender = read("supabase/functions/send-whatsapp/index.ts");
+  assert.match(sender, /auth\.getUser\(accessToken\)/);
+  assert.match(sender, /auth\.mfa\.getAuthenticatorAssuranceLevel\(\)/);
+  assert.match(sender, /assurance\?\.currentLevel !== "aal2"/);
+  assert.doesNotMatch(`${shared}${sender}`, /verifiedJwtPayload/);
+});
+
 test("database requires MFA and uses atomic lead rate limiting", () => {
   const sql = read("supabase/migrations/202607130002_security_hardening.sql");
   assert.match(sql, /as restrictive for all to authenticated/g);
@@ -74,7 +83,11 @@ test("database requires MFA and uses atomic lead rate limiting", () => {
 
 test("cPanel package includes defensive HTTP headers", () => {
   const apache = read("public/.htaccess");
-  for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Permissions-Policy", "Strict-Transport-Security"]) assert.match(apache, new RegExp(header));
+  for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Permissions-Policy", "Strict-Transport-Security", "Cross-Origin-Resource-Policy"]) assert.match(apache, new RegExp(header));
+  assert.match(apache, /base-uri 'none'/);
+  assert.match(apache, /frame-ancestors 'none'/);
+  assert.match(apache, /upgrade-insecure-requests/);
+  assert.match(apache, /ico\|mp4/);
 });
 test("CRM renders the complete lead request", () => {
   const html = read("admin/index.html");
@@ -84,8 +97,22 @@ test("CRM renders the complete lead request", () => {
   assert.match(admin, /from\("activities"\)/);
   assert.match(admin, /renderClientDetails/);
   assert.match(admin, /setInterval/);
-  assert.match(lead, /message_type: "lead_form"/);
-  assert.match(lead, /metadata: \{ company, email, phone, consent_at: now/);
+  assert.match(lead, /rpc\("ingest_public_lead"/);
+});
+
+test("public lead ingestion is atomic and restricted to the service role", () => {
+  const lead = read("supabase/functions/public-lead/index.ts");
+  const sql = read("supabase/migrations/202607150001_atomic_public_lead.sql");
+  assert.match(lead, /rpc\("ingest_public_lead"/);
+  assert.doesNotMatch(lead, /from\("contacts"\)/);
+  assert.match(sql, /security definer/);
+  assert.match(sql, /set search_path = public/);
+  assert.match(sql, /pg_advisory_xact_lock/);
+  assert.match(sql, /on conflict \(contact_id, channel\) do update/);
+  assert.match(sql, /message_type, body, status/);
+  assert.match(sql, /activity_type, summary, metadata/);
+  assert.match(sql, /revoke all on function public\.ingest_public_lead[^;]+from public, anon, authenticated/);
+  assert.match(sql, /grant execute on function public\.ingest_public_lead[^;]+to service_role/);
 });
 test("analytics counts visits and clicks privately", () => {
   const app = read("app.js");
@@ -125,4 +152,36 @@ test("hero includes the second chart video with safe automatic looping", () => {
   assert.match(html, /assets\/video\/five-bar-chart\.mp4/);
   assert.match(html, /type="video\/mp4"/);
   assert.match(css, /hero-chart-video\{[^}]*object-fit:cover/);
+});
+
+test("public page defers non-critical work and media", () => {
+  const html = read("index.html");
+  const app = read("app.js");
+  const css = read("styles.css");
+  assert.match(app, /requestIdleCallback/);
+  assert.match(app, /connection\?\.saveData/);
+  assert.match(app, /visibilitychange/);
+  assert.match(app, /IntersectionObserver/);
+  assert.match(html, /crk-contact-strip\.png"[^>]*loading="lazy"[^>]*decoding="async"/);
+  assert.match(css, /content-visibility:auto/);
+  for (const removed of ["hero-logo-stage", "hero-logo-mark", "product-art-cards", "product-art-neon", "product-art-wrap"]) assert.doesNotMatch(css, new RegExp(removed));
+});
+
+test("closed quote panel cannot receive focus or create visible horizontal overflow", () => {
+  const html = read("index.html");
+  const app = read("app.js");
+  const css = read("styles.css");
+  assert.match(html, /id="quote-panel"[^>]*aria-hidden="true"[^>]*inert/);
+  assert.match(app, /panel\.inert = !open/);
+  assert.match(css, /\.quote-panel\{visibility:hidden;pointer-events:none/);
+  assert.match(css, /html\{overflow-x:clip\}/);
+});
+
+test("API responses fail closed with JSON security headers and strict CORS", () => {
+  const shared = read("supabase/functions/_shared/backend.ts");
+  assert.match(shared, /Content-Security-Policy/);
+  assert.match(shared, /Cross-Origin-Resource-Policy/);
+  assert.match(shared, /X-Frame-Options/);
+  assert.match(shared, /\.\.\.\(origin \? \{ "Access-Control-Allow-Origin": origin \} : \{\}\)/);
+  assert.doesNotMatch(shared, /Access-Control-Allow-Origin": "\*"/);
 });

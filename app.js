@@ -46,6 +46,7 @@
 
   function setPanel(open) {
     panel.setAttribute('aria-hidden', String(!open));
+    panel.inert = !open;
     panel.classList.toggle('open', open);
     overlay.classList.toggle('open', open);
     document.body.classList.toggle('panel-open', open);
@@ -87,12 +88,42 @@
       keepalive: true
     }).catch(() => undefined);
   }
-  trackSiteEvent('visit');
+  function scheduleVisitTracking() {
+    const send = () => trackSiteEvent('visit');
+    if ('requestIdleCallback' in window) window.requestIdleCallback(send, { timeout: 2500 });
+    else window.setTimeout(send, 1500);
+  }
+  scheduleVisitTracking();
   document.addEventListener('click', (event) => {
     if (!event.isTrusted) return;
     const action = event.target.closest('a[href], button');
     if (action && !action.disabled) trackSiteEvent('click');
   }, { capture: true });
+
+  function initHeroVideo() {
+    const video = document.querySelector('.hero-chart-video');
+    if (!video) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    let visible = true;
+    const syncPlayback = () => {
+      if (document.hidden || !visible || reducedMotion.matches || connection?.saveData) video.pause();
+      else void video.play().catch(() => undefined);
+    };
+    if (reducedMotion.matches || connection?.saveData) {
+      video.removeAttribute('autoplay');
+      video.preload = 'none';
+      video.pause();
+    }
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; syncPlayback(); }, { rootMargin: '120px', threshold: 0.05 });
+      observer.observe(video);
+    }
+    document.addEventListener('visibilitychange', syncPlayback);
+    reducedMotion.addEventListener?.('change', syncPlayback);
+    syncPlayback();
+  }
+  initHeroVideo();
   function validate(field) {
     const error = field.parentElement.querySelector('.error');
     const valid = field.checkValidity();
@@ -250,6 +281,12 @@
     showSlide(0);
   }
 
-  document.querySelectorAll('[data-product-slider]').forEach(initProductSlider);
+  const productSliders = [...document.querySelectorAll('[data-product-slider]')];
+  if ('IntersectionObserver' in window) {
+    const sliderObserver = new IntersectionObserver((entries) => {
+      entries.filter((entry) => entry.isIntersecting).forEach((entry) => { initProductSlider(entry.target); sliderObserver.unobserve(entry.target); });
+    }, { rootMargin: '500px 0px' });
+    productSliders.forEach((slider) => sliderObserver.observe(slider));
+  } else productSliders.forEach(initProductSlider);
   renderCart();
 })();

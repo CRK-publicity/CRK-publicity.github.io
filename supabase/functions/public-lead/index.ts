@@ -47,31 +47,14 @@ Deno.serve(async (request) => {
     if (rateResult.error) throw rateResult.error;
     if (rateResult.data !== true) return json({ error: "Espera unos minutos antes de intentarlo de nuevo" }, 429, cors);
 
-    let { data: contact, error: lookupError } = await client.from("contacts").select("id").eq("phone_e164", phone).maybeSingle();
-    if (lookupError) throw lookupError;
-    if (!contact) {
-      const emailLookup = await client.from("contacts").select("id").eq("email", email).maybeSingle();
-      if (emailLookup.error) throw emailLookup.error;
-      contact = emailLookup.data;
-    }
-    const now = new Date().toISOString();
-    const contactData = { full_name: name, phone_e164: phone, email, company, source: "web", consent_status: "granted", consent_at: now, last_seen_at: now };
-    if (contact) {
-      const result = await client.from("contacts").update(contactData).eq("id", contact.id).select("id").single();
-      if (result.error) throw result.error;
-      contact = result.data;
-    } else {
-      const result = await client.from("contacts").insert(contactData).select("id").single();
-      if (result.error) throw result.error;
-      contact = result.data;
-    }
-    const conversationResult = await client.from("conversations").upsert({ contact_id: contact.id, channel: "web", status: "open", unread_count: 1, last_message_at: now }, { onConflict: "contact_id,channel" }).select("id").single();
-    if (conversationResult.error) throw conversationResult.error;
-    const requestMessage = `Nueva solicitud desde la web\n\nServicio: ${need}\nNegocio: ${company}\nCliente: ${name}\nCorreo: ${email}\nWhatsApp: ${phone}`;
-    const messageResult = await client.from("messages").insert({ conversation_id: conversationResult.data.id, contact_id: contact.id, direction: "inbound", message_type: "lead_form", body: requestMessage, status: "received", sent_at: now });
-    if (messageResult.error) throw messageResult.error;
-    const activityResult = await client.from("activities").insert({ contact_id: contact.id, activity_type: "lead_form", summary: need, metadata: { company, email, phone, consent_at: now, page: "portfolio" } });
-    if (activityResult.error) throw activityResult.error;
+    const leadResult = await client.rpc("ingest_public_lead", {
+      p_name: name,
+      p_email: email,
+      p_phone: phone,
+      p_company: company,
+      p_need: need,
+    });
+    if (leadResult.error || !Array.isArray(leadResult.data) || leadResult.data.length !== 1) throw leadResult.error || new Error("Lead transaction returned invalid data");
     return json({ accepted: true }, 202, cors);
   } catch (error) {
     console.error("public-lead", error instanceof Error ? error.message : "unknown error");

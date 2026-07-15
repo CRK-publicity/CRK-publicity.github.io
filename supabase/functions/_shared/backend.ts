@@ -3,9 +3,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.3";
 const encoder = new TextEncoder();
 const SECURITY_HEADERS = {
   "Cache-Control": "no-store",
+  "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
   "Content-Type": "application/json; charset=utf-8",
+  "Cross-Origin-Resource-Policy": "same-site",
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
 };
 
 export function adminClient() {
@@ -23,7 +26,7 @@ export function allowedOrigin(request: Request) {
 
 export function corsHeaders(origin: string) {
   return {
-    "Access-Control-Allow-Origin": origin,
+    ...(origin ? { "Access-Control-Allow-Origin": origin } : {}),
     "Access-Control-Allow-Headers": "authorization, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Max-Age": "600",
@@ -88,17 +91,6 @@ export async function verifyMetaSignature(rawBody: string, signature: string | n
   const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
   const expected = `sha256=${[...new Uint8Array(signed)].map((item) => item.toString(16).padStart(2, "0")).join("")}`;
   return safeEqual(expected, signature);
-}
-
-export function verifiedJwtPayload(token: string) {
-  const encoded = token.split(".")[1];
-  if (!encoded) return null;
-  try {
-    const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(encoded.length / 4) * 4, "=");
-    return JSON.parse(atob(base64)) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
 }
 
 export async function sendWhatsAppText(to: string, body: string) {

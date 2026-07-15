@@ -13,7 +13,7 @@
   <link rel="canonical" href="https://iwandezu.github.io/crkpublicity/">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080808">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <title>CRK Publicity — Tu negocio listo para crecer</title>
@@ -41,7 +41,7 @@
       </div>
       <div class="hero-art hero-photo-stage" aria-hidden="true">
         <div class="hero-mascot-scene"><img class="hero-mascot" src="assets/hero/crk-mascot-thumbs-up-transparent.webp" alt="" fetchpriority="high" decoding="async" width="1254" height="1254"></div>
-        <video class="hero-chart-video" autoplay muted loop playsinline preload="metadata" width="1080" height="1080"><source src="assets/video/five-bar-chart.mp4" type="video/mp4"></video>
+        <video class="hero-chart-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" width="1080" height="1080"><source src="assets/video/five-bar-chart.mp4" type="video/mp4"></video>
         <div class="hero-rgb-logo"><img src="assets/crk-publicity-logo.svg" alt="" width="123" height="63"></div>
       </div>
       <div class="hero-bottom"><span>Diseño e impresión</span><span>Web + CRM</span><span>Producción personalizada</span></div>
@@ -187,7 +187,7 @@
 
   <section class="brand-contact section" aria-labelledby="crk-contact-site">
     <h2 id="crk-contact-site" class="sr-only">Contactar a CRK Publicity</h2>
-    <img src="assets/crk-contact-strip.png" alt="CRK Publicity: WhatsApp 302 840 2389, correo crkpublicidad@yahoo.com y redes sociales @crkpublicity" width="910" height="173">
+          <img src="assets/crk-contact-strip.png" alt="CRK Publicity: WhatsApp 302 840 2389, correo crkpublicidad@yahoo.com y redes sociales @crkpublicity" loading="lazy" decoding="async" width="910" height="173">
     <div class="brand-contact-links" aria-label="Redes sociales de CRK Publicity">
       <a class="social-link" href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer" aria-label="Escribir a CRK Publicity por WhatsApp"><span class="social-icon"><img src="assets/icons/social/whatsapp.svg" alt="" width="24" height="24"></span><span>WhatsApp</span></a>
       <a class="social-link" href="mailto:crkpublicidad@yahoo.com" aria-label="Enviar correo a CRK Publicity"><span class="social-icon"><img src="assets/icons/social/email.svg" alt="" width="24" height="24"></span><span>Correo</span></a>
@@ -204,7 +204,7 @@
 
   <a class="whatsapp-assistant" href="https://wa.me/573028402389?text=Hola%20CRK%20Publicity%2C%20quiero%20informaci%C3%B3n." target="_blank" rel="noopener noreferrer" aria-label="Hablar con el asistente de CRK Publicity por WhatsApp"><img src="assets/icons/social/whatsapp.svg" alt="" width="24" height="24"><span><b>Asistente WhatsApp</b><small>Respuesta directa</small></span></a>  <footer class="footer"><div><a class="logo" href="#inicio"><img src="assets/crk-publicity-logo.svg" alt="CRK Publicity" width="123" height="63"></a><p>Digitalizamos negocios sin quitarles lo humano.</p></div><div><b>Explora</b><a href="#servicios">Servicios</a><a href="#productos">Productos</a><a href="#trabajos">Trabajos</a><a href="#contacto">Contacto</a></div><div><b>Contacto</b><a href="https://wa.me/573028402389" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="mailto:crkpublicidad@yahoo.com">Correo electrónico</a><a href="https://github.com/IWANDEZU" target="_blank" rel="noopener noreferrer">GitHub · IWANDEZU</a><a href="https://www.behance.net/ivanmartinez20" target="_blank" rel="noopener noreferrer">Behance · Iván Martínez</a><a href="privacidad/">Privacidad</a><a href="admin/" rel="nofollow">Acceso del equipo</a></div><p>IWANDEZU · CRK Publicity · 2026</p></footer>
 
-  <aside id="quote-panel" class="quote-panel" aria-hidden="true" aria-labelledby="quote-title">
+  <aside id="quote-panel" class="quote-panel" aria-hidden="true" aria-labelledby="quote-title" inert>
     <button class="close" type="button" data-close-quote aria-label="Cerrar cotización">×</button><p class="kicker">Cotización estimada</p><h2 id="quote-title">Tu solución</h2><div id="quote-items" class="quote-items"><p class="empty">Todavía no agregaste servicios.</p></div><div class="quote-total"><span>Total estimado desde</span><strong id="quote-total">$0 COP</strong></div><a class="button primary" href="#contacto" data-close-quote>Solicitar propuesta <span>→</span></a><small>Valor demostrativo. El precio final depende del alcance confirmado.</small>
   </aside>
   <div class="overlay" data-close-quote></div>
