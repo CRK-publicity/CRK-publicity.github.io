@@ -193,8 +193,10 @@ test("API responses fail closed with JSON security headers and strict CORS", () 
 test("Mercado Pago starter offer is integrated in services and links directly to payment", () => {
   const html = read("index.html");
   const payment = read("pago/index.html");
-  assert.match(html, /<article class="service-card payment-starter"[^>]*>[\s\S]*?href="pago\/"[^>]*data-payment-product="web_starter"[^>]*>Agregar/);
+  assert.match(html, /<article class="service-card[^\"]*payment-starter[^\"]*"[^>]*>[\s\S]*?href="pago\/"[^>]*data-payment-product="web_starter"[^>]*>Agregar/);
+  assert.match(html, /class="service-foot payment-starter-foot"[^>]*>[\s\S]*?href="pago\/"/);
   assert.doesNotMatch(html, /data-service="[^"]*"[^>]*data-payment-product="web_starter"/);
+  assert.doesNotMatch(html, /payment-starter-action|payment-starter-copy/);
   assert.match(html, /\$200\.000 COP/);
   assert.match(html, /Dominio, hosting e integraciones avanzadas/);
   assert.match(payment, /Página web inicial/);
