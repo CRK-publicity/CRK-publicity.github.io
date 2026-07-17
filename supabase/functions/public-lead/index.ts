@@ -54,7 +54,13 @@ Deno.serve(async (request) => {
       p_company: company,
       p_need: need,
     });
-    if (leadResult.error || !Array.isArray(leadResult.data) || leadResult.data.length !== 1) throw leadResult.error || new Error("Lead transaction returned invalid data");
+    if (leadResult.error) {
+      if (String(leadResult.error.message || "").includes("lead_identity_conflict")) {
+        return json({ error: "Para proteger tus datos, confirma tu correo y WhatsApp directamente con nosotros." }, 409, cors);
+      }
+      throw leadResult.error;
+    }
+    if (!Array.isArray(leadResult.data) || leadResult.data.length !== 1) throw new Error("Lead transaction returned invalid data");
     return json({ accepted: true }, 202, cors);
   } catch (error) {
     console.error("public-lead", error instanceof Error ? error.message : "unknown error");

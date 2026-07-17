@@ -25,29 +25,33 @@ begin
     raise exception 'invalid_lead_input' using errcode = '22023';
   end if;
 
-  perform pg_advisory_xact_lock(hashtextextended(p_phone || ':' || lower(p_email), 0));
+  -- Lock both normalized identifiers in a fixed order so overlapping requests cannot race.
+  perform pg_advisory_xact_lock(hashtextextended('contact-email:' || lower(p_email), 0));
+  perform pg_advisory_xact_lock(hashtextextended('contact-phone:' || p_phone, 0));
 
   select id into v_contact_id
   from public.contacts
-  where phone_e164 = p_phone or lower(email) = lower(p_email)
-  order by case when phone_e164 = p_phone then 0 else 1 end
+  where phone_e164 = p_phone and lower(email) = lower(p_email)
   limit 1
   for update;
 
   if v_contact_id is null then
+    if exists (
+      select 1 from public.contacts
+      where phone_e164 = p_phone or lower(email) = lower(p_email)
+    ) then
+      raise exception 'lead_identity_conflict' using errcode = '22023';
+    end if;
+
     insert into public.contacts
       (full_name, phone_e164, email, company, source, consent_status, consent_at, last_seen_at)
     values
       (p_name, p_phone, lower(p_email), p_company, 'web', 'granted', v_now, v_now)
     returning id into v_contact_id;
   else
+    -- Public submissions may refresh consent/activity but never master identity fields.
     update public.contacts
-    set full_name = p_name,
-        phone_e164 = p_phone,
-        email = lower(p_email),
-        company = p_company,
-        source = 'web',
-        consent_status = 'granted',
+    set consent_status = 'granted',
         consent_at = v_now,
         last_seen_at = v_now
     where id = v_contact_id;

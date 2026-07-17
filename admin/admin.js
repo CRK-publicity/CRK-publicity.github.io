@@ -131,8 +131,8 @@ function renderConversations(items) {
 
 function renderClientDetails(contact, activities, channel) {
   const stageLabels = { lead: "Lead", qualified: "Calificado", proposal: "Propuesta", customer: "Cliente", inactive: "Inactivo" };
-  const sourceLabels = { web: "Formulario web", whatsapp: "WhatsApp" };
-  const leadRequests = activities.filter((item) => item.activity_type === "lead_form");
+  const sourceLabels = { web: "Formulario web", whatsapp: "WhatsApp", payment: "Pago web" };
+  const leadRequests = activities.filter((item) => ["lead_form", "payment_created", "payment_approved", "payment_status"].includes(item.activity_type));
   const latest = leadRequests[0];
   const metadata = latest?.metadata && typeof latest.metadata === "object" ? latest.metadata : {};
   $("#detail-company").textContent = contact.company || metadata.company || "No informado";
@@ -194,7 +194,7 @@ function renderContacts(items) {
   items.forEach((contact) => {
     const row = document.createElement("tr"); const identity = document.createElement("td"); identity.append(el("b", "", contact.full_name), el("small", "", contact.company || "Sin empresa"));
     const detail = document.createElement("td"); detail.append(el("span", "", contact.phone_e164 || "—"), el("small", "", contact.email || "—"));
-    const source = el("td", "", contact.source === "whatsapp" ? "WhatsApp" : "Web");
+    const source = el("td", "", contact.source === "whatsapp" ? "WhatsApp" : contact.source === "payment" ? "Pago web" : "Web");
     const stageCell = document.createElement("td"), select = document.createElement("select");
     [["lead","Lead"],["qualified","Calificado"],["proposal","Propuesta"],["customer","Cliente"],["inactive","Inactivo"]].forEach(([value,label]) => { const option = new Option(label, value, false, contact.lifecycle_stage === value); select.add(option); });
     select.setAttribute("aria-label", `Etapa de ${contact.full_name}`); select.addEventListener("change", async () => { select.disabled = true; const { error } = await supabase.from("contacts").update({ lifecycle_stage: select.value, updated_at: new Date().toISOString() }).eq("id", contact.id); toast(error ? "No se pudo actualizar" : "Etapa actualizada"); select.disabled = false; });

@@ -42,7 +42,7 @@ test("frontend avoids HTML injection sinks and enforces a CSP", () => {
 });
 
 test("all static images declare dimensions", () => {
-  for (const file of ["index.html", "admin/index.html", "privacidad/index.html"]) {
+  for (const file of ["index.html", "admin/index.html", "privacidad/index.html", "pago/index.html"]) {
     const html = read(file);
     for (const tag of html.match(/<img\b[^>]*>/g) || []) {
       assert.match(tag, /\bwidth="\d+"/);
@@ -111,6 +111,10 @@ test("public lead ingestion is atomic and restricted to the service role", () =>
   assert.match(sql, /on conflict \(contact_id, channel\) do update/);
   assert.match(sql, /message_type, body, status/);
   assert.match(sql, /activity_type, summary, metadata/);
+  assert.match(sql, /phone_e164 = p_phone and lower\(email\) = lower\(p_email\)/);
+  assert.match(sql, /lead_identity_conflict/);
+  assert.match(lead, /lead_identity_conflict/);
+  assert.doesNotMatch(sql, /update public\.contacts\s+set[^;]*(?:full_name|phone_e164|email)\s*=/s);
   assert.match(sql, /revoke all on function public\.ingest_public_lead[^;]+from public, anon, authenticated/);
   assert.match(sql, /grant execute on function public\.ingest_public_lead[^;]+to service_role/);
 });
@@ -184,4 +188,153 @@ test("API responses fail closed with JSON security headers and strict CORS", () 
   assert.match(shared, /X-Frame-Options/);
   assert.match(shared, /\.\.\.\(origin \? \{ "Access-Control-Allow-Origin": origin \} : \{\}\)/);
   assert.doesNotMatch(shared, /Access-Control-Allow-Origin": "\*"/);
+});
+
+test("Mercado Pago starter offer is integrated in services and links directly to payment", () => {
+  const html = read("index.html");
+  const payment = read("pago/index.html");
+  assert.match(html, /<article class="service-card payment-starter"[^>]*>[\s\S]*?href="pago\/"[^>]*data-payment-product="web_starter"[^>]*>Agregar/);
+  assert.doesNotMatch(html, /data-service="[^"]*"[^>]*data-payment-product="web_starter"/);
+  assert.match(html, /\$200\.000 COP/);
+  assert.match(html, /Dominio, hosting e integraciones avanzadas/);
+  assert.match(payment, /Página web inicial/);
+  assert.match(payment, /\$200\.000/);
+  assert.match(payment, /Mercado Pago/);
+});
+
+test("payment frontend redirects only to trusted Mercado Pago HTTPS URLs", () => {
+  const script = read("pago/payment.js");
+  const page = read("pago/index.html");
+  assert.match(script, /productCode: "web_starter"/);
+  assert.match(script, /clientRequestId/);
+  assert.match(script, /window\.location\.assign/);
+  assert.match(script, /url\.protocol === "https:"/);
+  assert.match(script, /trustedCheckoutHosts\.has\(url\.hostname\)/);
+  assert.match(script, /"www\.mercadopago\.com"/);
+  assert.match(script, /"sandbox\.mercadopago\.com"/);
+  assert.doesNotMatch(script, /hostname\.endsWith/);
+  assert.doesNotMatch(script, /unit_price|MERCADO_PAGO_ACCESS_TOKEN|MERCADO_PAGO_WEBHOOK_SECRET/);
+  assert.doesNotMatch(script, /\.innerHTML\s*=/);
+  assert.match(page, /noindex,nofollow/);
+  assert.match(page, /Content-Security-Policy/);
+  assert.match(page, /<form id="payment-form" method="post"/);
+  assert.match(page, /type="submit" disabled/);
+  assert.match(page, /aria-live="polite" aria-atomic="true"/);
+});
+
+test("payment return page verifies server state and ignores browser result parameters", () => {
+  const script = read("pago/payment.js");
+  assert.match(script, /postFunction\("payment-status", \{ orderId \}/);
+  assert.match(script, /get\("order"\)/);
+  assert.doesNotMatch(script, /get\("result"\)|get\("status"\)/);
+  assert.match(script, /attempt < 6/);
+  assert.match(script, /textContent/);
+});
+
+test("Mercado Pago price and idempotency are enforced server-side", () => {
+  const createPayment = read("supabase/functions/create-payment/index.ts");
+  const status = read("supabase/functions/payment-status/index.ts");
+  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
+  assert.match(createPayment, /amount: 200_000/);
+  assert.match(createPayment, /unit_price: PRODUCT\.amount/);
+  assert.match(createPayment, /productCode !== PRODUCT\.code/);
+  assert.match(createPayment, /check_payment_rate_limit/);
+  assert.match(createPayment, /create_payment_order/);
+  assert.match(createPayment, /claim_payment_preference/);
+  assert.match(createPayment, /p_scope_accepted: true/);
+  assert.match(createPayment, /p_privacy_accepted: true/);
+  assert.match(status, /select\("title,amount_cop,currency,status"\)/);
+  assert.match(sql, /amount_cop bigint not null check \(amount_cop = 200000\)/);
+  assert.match(sql, /public_token uuid not null unique/);
+  assert.match(sql, /provider_event_key text not null unique/);
+  assert.match(sql, /scope_version text not null/);
+  assert.match(sql, /accepted_at timestamptz not null/);
+  assert.match(sql, /and status = 'processing'/);
+  assert.match(sql, /on delete restrict/);
+  assert.match(sql, /force row level security/g);
+  assert.doesNotMatch(createPayment, /X-Idempotency-Key/i);
+});
+
+test("Mercado Pago webhook authenticates and revalidates every payment", () => {
+  const webhook = read("supabase/functions/mercado-pago-webhook/index.ts");
+  const shared = read("supabase/functions/_shared/backend.ts");
+  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
+  assert.match(webhook, /x-signature/);
+  assert.match(webhook, /x-request-id/);
+  assert.match(webhook, /searchParams\.get\("data\.id"\)/);
+  assert.match(webhook, /id:" \+ dataId \+ ";request-id:"/);
+  assert.match(webhook, /hmacSha256/);
+  assert.match(shared, /export async function hmacSha256/);
+  assert.match(webhook, /api\.mercadopago\.com\/v1\/payments\//);
+  assert.match(webhook, /paymentId !== dataId/);
+  assert.match(webhook, /p_amount_cop: amount/);
+  assert.match(webhook, /p_refunded_amount_cop: refundedAmount/);
+  assert.match(webhook, /p_currency: currency/);
+  assert.match(webhook, /p_collector_id: collectorId/);
+  assert.match(webhook, /apply_mercado_pago_payment/);
+  assert.match(webhook, /eventKey = "mp:" \+ await sha256\(manifest\)/);
+  assert.match(webhook, /liveMode !== expectLiveMode/);
+  assert.match(webhook, /return null/);
+  assert.match(sql, /amount_mismatch/);
+  assert.match(sql, /collector_mismatch/);
+  assert.match(sql, /duplicate_payment/);
+  assert.match(sql, /unsupported_status/);
+  assert.match(sql, /refunded_amount_cop bigint not null/);
+  assert.match(sql, /possible pago duplicado|posible pago duplicado/);
+  assert.match(sql, /v_order\.status = 'approved'/);
+});
+
+test("Mercado Pago secrets stay in Edge Functions and functions are public-gateway configured", () => {
+  const env = read(".env.example");
+  const frontend = read("index.html") + read("pago/index.html") + read("pago/payment.js");
+  const config = read("supabase/config.toml");
+  assert.doesNotMatch(env + frontend, /MERCADO_PAGO_ACCESS_TOKEN|MERCADO_PAGO_WEBHOOK_SECRET/);
+  for (const name of ["create-payment", "payment-status", "mercado-pago-webhook"]) {
+    assert.match(config, new RegExp("\\[functions\\." + name.replace("-", "\\-") + "\\][^]*verify_jwt = false"));
+  }
+});
+
+test("CRM recognizes payment activities without exposing provider payloads", () => {
+  const admin = read("admin/admin.js");
+  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
+  assert.match(admin, /payment_created/);
+  assert.match(admin, /payment_approved/);
+  assert.match(admin, /payment: "Pago web"/);
+  assert.match(sql, /payload_hash text not null/);
+  assert.doesNotMatch(sql, /card_number|security_code|document_number/);
+});
+test("payment identity is bound to both normalized contact identifiers", () => {
+  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
+  const createOrder = sql.slice(
+    sql.indexOf("create or replace function public.create_payment_order"),
+    sql.indexOf("create or replace function public.claim_payment_preference")
+  );
+  assert.match(createOrder, /c\.phone_e164 = p_phone and lower\(c\.email\) = lower\(p_email\)/);
+  assert.match(createOrder, /payment_identity_conflict/);
+  assert.match(createOrder, /p_scope_version is distinct from/);
+  assert.match(createOrder, /lower\(coalesce\(v_contact_email, ''\)\) <> lower\(p_email\)/);
+  assert.doesNotMatch(createOrder, /update public\.contacts\s+set[^;]*(?:full_name|phone_e164|email)\s*=/s);
+});
+
+test("payment consent, privacy disclosure and storage fallback are explicit", () => {
+  const page = read("pago/index.html");
+  const script = read("pago/payment.js");
+  const privacy = read("privacidad/index.html");
+  assert.match(page, /id="purchase-conditions"/);
+  assert.match(page, /condiciones de cancelación o devolución/);
+  assert.match(script, /scopeVersion: acceptanceVersions\.scope/);
+  assert.match(script, /privacyVersion: acceptanceVersions\.privacy/);
+  assert.match(script, /sessionStorage\.removeItem\("crkPaymentRequestId"\)/);
+  assert.match(script, /let volatileRequestId = ""/);
+  assert.match(script, /error\.code === "identity_conflict"/);
+  const clearBlock = script.slice(script.indexOf("function clearRequestId"), script.indexOf("function validateField"));
+  assert.doesNotMatch(clearBlock, /clearRequestId\(\);/);
+  assert.match(privacy, /Mercado Pago recibe los datos necesarios/);
+  assert.match(privacy, /no recibimos ni almacenamos los datos de tu tarjeta/);
+});
+
+test("build output uses portable relative asset paths", () => {
+  const config = read("vite.config.js");
+  assert.match(config, /base: ['"]\.\/['"]/);
+  assert.doesNotMatch(config, /base: ['"]\/crkpublicity\/['"]/);
 });

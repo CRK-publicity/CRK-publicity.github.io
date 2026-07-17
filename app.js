@@ -170,7 +170,11 @@
           window.clearTimeout(timeout);
         }
         if (!response.ok) {
-          const reason = response.status === 429 ? 'Espera unos minutos antes de volver a intentarlo.' : 'No pudimos registrar la solicitud.';
+          const reason = response.status === 409
+            ? 'Para proteger tus datos, confirma tu correo y WhatsApp con nosotros.'
+            : response.status === 429
+              ? 'Espera unos minutos antes de volver a intentarlo.'
+              : 'No pudimos registrar la solicitud.';
           throw new Error(reason);
         }
         success.querySelector('b').textContent = 'Solicitud recibida.';

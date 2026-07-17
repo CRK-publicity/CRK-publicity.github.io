@@ -11,6 +11,15 @@ verify_jwt = false
 
 [functions.send-whatsapp]
 verify_jwt = false
+
+[functions.create-payment]
+verify_jwt = false
+
+[functions.payment-status]
+verify_jwt = false
+
+[functions.mercado-pago-webhook]
+verify_jwt = false
 [auth]
 site_url = "https://iwandezu.github.io/crkpublicity/admin/"
 additional_redirect_urls = ["https://iwandezu.github.io/crkpublicity/admin/", "http://localhost:5173/crkpublicity/admin/"]

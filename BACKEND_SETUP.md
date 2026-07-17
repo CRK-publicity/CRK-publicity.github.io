@@ -92,3 +92,57 @@ Usa el mismo valor de `META_VERIFY_TOKEN` para la verificación. Suscribe el cam
 - Revisa semanalmente mensajes fallidos, contactos duplicados y usuarios autorizados.
 
 Documentación oficial: [Supabase Edge Functions](https://supabase.com/docs/guides/functions), [seguridad y RLS](https://supabase.com/docs/guides/database/secure-data) y [WhatsApp Business Platform de Meta](https://www.postman.com/meta/whatsapp-business-platform/overview).
+
+## 6. Activar Mercado Pago Checkout Pro
+
+La web incluye el paquete **Página web inicial por $200.000 COP**. El precio se define en el backend y PostgreSQL; el navegador no puede cambiarlo. CRK Publicity no recibe ni almacena datos de tarjetas.
+
+1. En [Mercado Pago Developers](https://www.mercadopago.com.co/developers/panel/app) crea una aplicación para Checkout Pro.
+2. Empieza con credenciales de prueba. Copia el Access Token desde el panel y consérvalo fuera del repositorio.
+3. En **Webhooks** configura el evento **Pagos** con esta URL:
+
+~~~text
+https://wiyhambpgiqbnzwrsykd.supabase.co/functions/v1/mercado-pago-webhook?source_news=webhooks
+~~~
+
+4. Copia la clave secreta de Webhooks. No pegues el Access Token ni esa clave en el sitio, GitHub o este chat. Desde la terminal del proyecto guárdalos directamente en Supabase:
+
+~~~powershell
+supabase secrets set MERCADO_PAGO_ACCESS_TOKEN="ACCESS_TOKEN_DEL_PANEL"
+supabase secrets set MERCADO_PAGO_WEBHOOK_SECRET="CLAVE_SECRETA_DE_WEBHOOKS"
+supabase secrets set PUBLIC_SITE_URL="https://iwandezu.github.io/crkpublicity/"
+supabase secrets set MERCADO_PAGO_USE_SANDBOX="true"
+~~~
+
+**ALLOWED_ORIGINS** debe contener https://iwandezu.github.io y **IP_HASH_SALT** debe seguir configurado con al menos 32 caracteres.
+
+5. Aplica la migración y publica las tres funciones:
+
+~~~powershell
+supabase db push
+supabase functions deploy create-payment
+supabase functions deploy payment-status
+supabase functions deploy mercado-pago-webhook
+~~~
+
+6. Ejecuta una compra de prueba y usa el simulador de Webhooks de Mercado Pago para confirmar los estados. Comprueba en el CRM que aparece el cliente, la orden iniciada y, tras una notificación válida, el pago aprobado.
+7. Antes de recibir dinero real, define por escrito tiempos, revisiones, cancelaciones y devoluciones. El cliente debe recibir y aceptar esas condiciones antes de marcar la confirmación del checkout. Después reemplaza el Access Token por el de producción y cambia:
+
+~~~powershell
+supabase secrets set MERCADO_PAGO_USE_SANDBOX="false"
+~~~
+
+Cuando la web pase a cPanel o a un dominio propio, actualiza **PUBLIC_SITE_URL** y **ALLOWED_ORIGINS**, y vuelve a probar las tres URL de retorno. El build usa rutas relativas para funcionar tanto en GitHub Pages como en la raíz de cPanel.
+
+No actives cobros reales en GitHub Pages: ese hosting no permite establecer todos los encabezados de seguridad del checkout, incluido `frame-ancestors`. Para producción usa cPanel o un proxy como Cloudflare, conserva las reglas de `public/.htaccess` y verifica los encabezados reales antes de cobrar.
+
+### Controles de seguridad del pago
+
+- El importe es fijo en backend y tiene una restricción adicional en PostgreSQL.
+- Cada intento usa un UUID único y un bloqueo transaccional para reutilizar la preferencia guardada. Como el endpoint de preferencias no documenta una clave de idempotencia, una interrupción después de crearla en Mercado Pago y antes de guardarla puede dejar una preferencia remota huérfana; debe revisarse durante la conciliación.
+- El webhook valida **x-signature** con HMAC SHA-256 y deriva la clave de deduplicación exclusivamente de los valores firmados.
+- Después de validar la firma, el backend consulta el pago en Mercado Pago y compara referencia, moneda, importe, cobrador y modo prueba/producción.
+- La página de regreso consulta el estado del servidor; nunca acredita un pago por parámetros de la URL.
+- Los eventos guardan un hash y metadatos mínimos, no el JSON completo ni información de tarjeta.
+- La aceptación de alcance y privacidad se valida en servidor y se conserva con su versión y fecha.
+- Estados desconocidos, reembolsos parciales y posibles pagos duplicados quedan en auditoría sin degradar silenciosamente una orden aprobada.

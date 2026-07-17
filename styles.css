@@ -167,3 +167,17 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 @media(prefers-reduced-motion:reduce){.hero-photo-stage::before,.hero-rgb-logo::before,.hero-rgb-logo::after,.hero-mascot{animation:none}.hero-rgb-logo::before{opacity:.3}.hero-rgb-logo::after{background-position:0 0}.hero-mascot{transform:none}}
 @supports(content-visibility:auto){#servicios,#productos,#trabajos,#proceso,#contacto,.footer{content-visibility:auto;contain-intrinsic-size:auto 900px}}
 @supports(overflow:clip){html{overflow-x:clip}}
+
+/* MERCADO PAGO STARTER OFFER */
+.service-card.payment-starter{grid-column:1/-1;min-height:0;margin-top:22px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:38px;align-items:center;padding:38px;border:1px solid rgba(255,255,255,.11);border-radius:30px;background:radial-gradient(circle at 12% 8%,rgba(255,107,0,.16),transparent 34%),linear-gradient(145deg,#202022,#141415);color:#f5f5f7;box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 25px 70px rgba(0,0,0,.28)}
+.payment-starter-copy h3{margin:8px 0 12px;font-size:clamp(2.2rem,4.8vw,4.6rem);font-weight:900;line-height:.94;letter-spacing:-.065em}
+.payment-starter-copy>p:not(.kicker){max-width:650px;margin:0;color:#b6b6bc;font-size:16px;line-height:1.65}
+.payment-starter-copy ul{margin:24px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:9px;list-style:none}
+.payment-starter-copy li{padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.055);font-size:11px;font-weight:760}
+.payment-starter-action{min-width:0;display:grid;gap:8px;padding:28px;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:rgba(8,8,9,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.payment-starter-action>span{color:#9c9ca3;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.payment-starter-action>strong{margin-bottom:12px;color:#fff;font-size:clamp(2rem,4vw,3.45rem);font-weight:900;letter-spacing:-.065em;white-space:nowrap}
+.payment-starter-action .button{width:100%;justify-content:space-between}
+.payment-starter-action small{margin-top:4px;color:#929299;font-size:10px;line-height:1.5}
+@media(max-width:800px){.service-card.payment-starter{grid-template-columns:1fr;gap:24px;padding:28px}.payment-starter-action{padding:23px}}
+@media(max-width:640px){.service-card.payment-starter{margin-top:14px;padding:24px 19px;border-radius:24px}.payment-starter-copy>p:not(.kicker){font-size:14px}.payment-starter-action>strong{white-space:normal}.payment-starter-copy ul{display:grid}.payment-starter-copy li{width:max-content;max-width:100%}}

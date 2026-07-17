@@ -84,15 +84,18 @@ export function safeEqual(left: string, right: string) {
   return mismatch === 0;
 }
 
+export async function hmacSha256(secret: string, value: string) {
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
+  return [...new Uint8Array(signed)].map((item) => item.toString(16).padStart(2, "0")).join("");
+}
+
 export async function verifyMetaSignature(rawBody: string, signature: string | null) {
   const secret = Deno.env.get("META_APP_SECRET") || "";
   if (!secret || !signature?.startsWith("sha256=")) return false;
-  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(rawBody));
-  const expected = `sha256=${[...new Uint8Array(signed)].map((item) => item.toString(16).padStart(2, "0")).join("")}`;
+  const expected = "sha256=" + await hmacSha256(secret, rawBody);
   return safeEqual(expected, signature);
 }
-
 export async function sendWhatsAppText(to: string, body: string) {
   const token = Deno.env.get("META_ACCESS_TOKEN") || "";
   const phoneId = Deno.env.get("META_PHONE_NUMBER_ID") || "";

@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/crkpublicity/',
+  base: './',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, 'index.html'),
         admin: resolve(import.meta.dirname, 'admin/index.html'),
+        payment: resolve(import.meta.dirname, 'pago/index.html'),
         privacy: resolve(import.meta.dirname, 'privacidad/index.html')
       }
     }
