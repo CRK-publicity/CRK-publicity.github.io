@@ -66,3 +66,7 @@ El backend, autenticación, CRM y funciones de pago continúan en Supabase; Clou
 - Carpeta a subir: `dist`
 - Pruebas: `npm run check`
 - Auditoría: `npm run audit:security`
+
+## Organización
+
+Repositorio de desarrollo web de CRK Publicity.
