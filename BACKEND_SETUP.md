@@ -110,7 +110,7 @@ https://wiyhambpgiqbnzwrsykd.supabase.co/functions/v1/mercado-pago-webhook?sourc
 ~~~powershell
 supabase secrets set MERCADO_PAGO_ACCESS_TOKEN="ACCESS_TOKEN_DEL_PANEL"
 supabase secrets set MERCADO_PAGO_WEBHOOK_SECRET="CLAVE_SECRETA_DE_WEBHOOKS"
-supabase secrets set PUBLIC_SITE_URL="https://iwandezu.github.io/crkpublicity/"
+supabase secrets set PUBLIC_SITE_URL="https://crk-publicity.github.io/"
 supabase secrets set MERCADO_PAGO_USE_SANDBOX="true"
 ~~~
 
