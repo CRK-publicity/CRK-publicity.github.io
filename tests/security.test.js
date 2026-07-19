@@ -425,3 +425,14 @@ test("raffles use atomic reservations, private files and owner-only administrati
   assert.match(adminFunction, /payment_status:"approved"/);
   assert.match(page, /Sorteos y Premios/);
 });
+
+test("storefront actions remain readable and use valid UTF-8", () => {
+  const page = read("index.html");
+  const script = read("app.js");
+  const styles = read("styles.css");
+  for (const source of [page, script, styles]) assert.doesNotMatch(source, /[ÃÂâ]/);
+  assert.match(script, /Agregar a cotización/);
+  assert.match(page, /Ver mi cotización/);
+  assert.match(styles, /\.product-actions\{display:grid;grid-template-columns:1fr;/);
+  assert.match(styles, /\.catalog-add,\.product-quote-link\{width:100%;/);
+});

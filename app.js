@@ -28,7 +28,7 @@
   function requestNeed(value) {
     const selected = [...cart.keys()].join(', ');
     const base = typeof value === 'string' ? value.trim() : '';
-    return selected ? `${base || 'Consulta de tienda'} · SelecciÃ³n: ${selected}`.slice(0, 480) : base;
+    return selected ? `${base || 'Consulta de tienda'} · Selección: ${selected}`.slice(0, 480) : base;
   }
 
   function showToast(message) {
@@ -117,10 +117,10 @@
       add.type = 'button';
       add.dataset.service = title.textContent.trim();
       add.dataset.price = '0';
-      add.dataset.addLabel = 'Agregar a cotizaciÃ³n';
+      add.dataset.addLabel = 'Agregar a cotización';
       add.dataset.addedLabel = 'Agregado';
       icon.textContent = '+';
-      add.append(document.createTextNode('Agregar a cotizaciÃ³n '), icon);
+      add.append(document.createTextNode('Agregar a cotización '), icon);
       whatsapp.classList.add('product-quote-link');
       actions.append(add, whatsapp);
       copy.append(actions);

@@ -114,7 +114,7 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 .store-guide-icon{display:grid;flex:0 0 32px;width:32px;height:32px;place-items:center;border:1px solid rgba(255,107,0,.32);border-radius:10px;background:rgba(255,107,0,.10);color:var(--accent);font-size:10px;font-weight:850}
 .store-guide p{display:grid;gap:3px;margin:0}.store-guide b{font-size:11px;letter-spacing:-.01em}.store-guide small{color:#a1a1a6;font-size:10px;line-height:1.35}
 .store-guide-action{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 17px;border:0;border-radius:16px;background:var(--accent);color:#fff;font-family:inherit;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;transition:transform .2s ease,background .2s ease}.store-guide-action:hover{transform:translateY(-2px);background:#ff7b1a}.store-guide-action span{display:grid;min-width:20px;height:20px;place-items:center;border-radius:999px;background:rgba(0,0,0,.18);font-size:10px}
-.product-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:auto;padding-top:8px}.catalog-add,.product-quote-link{min-height:44px;border-radius:14px;font:inherit;font-size:11px;font-weight:800;letter-spacing:-.01em;text-decoration:none}.catalog-add{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px;border:1px solid rgba(255,107,0,.5);background:rgba(255,107,0,.12);color:#fff;cursor:pointer;transition:transform .2s ease,background .2s ease,border-color .2s ease}.catalog-add:hover,.catalog-add.added{border-color:var(--accent);background:var(--accent);transform:translateY(-2px)}.catalog-add b{font-size:17px;line-height:1}.product-copy>.product-actions>.product-quote-link{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 12px;border:1px solid rgba(255,255,255,.13);background:#252527;color:#d1d1d6}.product-copy>.product-actions>.product-quote-link:hover{border-color:rgba(255,107,0,.45);color:#fff}.catalog-add:focus-visible,.store-guide-action:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.product-actions{display:grid;grid-template-columns:1fr;gap:10px;align-items:center;margin-top:auto;padding-top:8px}.catalog-add,.product-quote-link{width:100%;min-height:44px;border-radius:14px;font:inherit;font-size:11px;font-weight:800;letter-spacing:-.01em;text-decoration:none}.catalog-add{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px;border:1px solid rgba(255,107,0,.5);background:rgba(255,107,0,.12);color:#fff;cursor:pointer;transition:transform .2s ease,background .2s ease,border-color .2s ease}.catalog-add:hover,.catalog-add.added{border-color:var(--accent);background:var(--accent);transform:translateY(-2px)}.catalog-add b{font-size:17px;line-height:1}.product-copy>.product-actions>.product-quote-link{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 12px;border:1px solid rgba(255,255,255,.13);background:#252527;color:#d1d1d6}.product-copy>.product-actions>.product-quote-link:hover{border-color:rgba(255,107,0,.45);color:#fff}.catalog-add:focus-visible,.store-guide-action:focus-visible{outline:3px solid #fff;outline-offset:3px}
 @media(max-width:900px){.store-guide{grid-template-columns:1fr 1fr}.store-guide>div:nth-child(2){border-right:0}.store-guide-action{grid-column:1/-1}}
 @media(max-width:640px){.store-guide{grid-template-columns:1fr;margin:-18px 0 22px;padding:8px;border-radius:20px}.store-guide>div{padding:10px;border-right:0;border-bottom:1px solid rgba(255,255,255,.08)}.store-guide-action{min-height:46px;border-radius:13px}.product-actions{grid-template-columns:1fr}.product-copy>.product-actions>.product-quote-link{min-height:40px}}
 /* KHALO BUSINESS CARD PHOTO */
@@ -176,6 +176,18 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 @media(prefers-reduced-motion:reduce){.hero-photo-stage::before,.hero-rgb-logo::before,.hero-rgb-logo::after,.hero-mascot{animation:none}.hero-rgb-logo::before{opacity:.3}.hero-rgb-logo::after{background-position:0 0}.hero-mascot{transform:none}}
 @supports(content-visibility:auto){#servicios,#productos,#trabajos,#proceso,#contacto,.footer{content-visibility:auto;contain-intrinsic-size:auto 900px}}
 @supports(overflow:clip){html{overflow-x:clip}}
+
+/* HERO: COMPOSICIÓN LIMPIA Y JERARQUÍA DE DOS TONOS */
+.hero{grid-template-rows:1fr}
+.hero h1,.hero h1 em{color:#fff}
+.hero .lead{color:var(--accent);font-weight:600}
+.hero-chart-video{top:24%;bottom:auto;left:5%;width:43%;transform:rotate(-2deg)}
+.hero-rgb-logo{top:5%;left:5%;width:31%}
+
+@media(max-width:640px){
+  .hero-chart-video{top:25%;bottom:auto;left:4%;width:45%}
+  .hero-rgb-logo{top:4%;left:4%;width:33%}
+}
 
 /* MERCADO PAGO STARTER OFFER */
 .service-card.payment-starter{grid-column:auto}
