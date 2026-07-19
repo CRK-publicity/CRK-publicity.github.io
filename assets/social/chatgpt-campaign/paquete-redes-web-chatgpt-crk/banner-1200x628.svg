@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="628" viewBox="0 0 1200 628" role="img" aria-labelledby="title desc">
+  <title id="title">Página web desde USD 200</title>
+  <desc id="desc">Banner promocional de CRK Publicity para páginas web preparadas para búsqueda y asistentes de inteligencia artificial.</desc>
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0" stop-color="#050505" stop-opacity="1"/><stop offset=".52" stop-color="#050505" stop-opacity=".95"/><stop offset=".8" stop-color="#050505" stop-opacity=".38"/><stop offset="1" stop-color="#050505" stop-opacity=".08"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1"><stop stop-color="#ff4d00"/><stop offset="1" stop-color="#ff9200"/></linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="6" result="b"/><feFlood flood-color="#ff5a00" flood-opacity=".55" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1200" height="628" fill="#050505"/>
+  <image xlink:href="ai-discovery-background.png" x="572" y="0" width="628" height="628" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="1200" height="628" fill="url(#fade)"/>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <image xlink:href="../../crk-publicity-logo.svg" x="52" y="38" width="115" height="59" filter="url(#glow)"/>
+    <text x="188" y="67" fill="#ffffff" font-size="17" font-weight="900" letter-spacing="1.8">WEB + SEO PARA IA</text>
+    <text x="188" y="91" fill="#9b9ba1" font-size="15" font-weight="700">CRK Publicity</text>
+
+    <text x="52" y="177" fill="#ffffff" font-size="54" font-weight="900" letter-spacing="-2">HAZ QUE TU NEGOCIO</text>
+    <text x="52" y="239" fill="#ffffff" font-size="54" font-weight="900" letter-spacing="-2">APAREZCA EN CHATGPT</text>
+    <text x="52" y="284" fill="#b9b9be" font-size="21" font-weight="600">Una web rápida, clara y preparada para ser encontrada.</text>
+
+    <text x="52" y="361" fill="#ffffff" font-size="24" font-weight="800">PÁGINA WEB DESDE</text>
+    <text x="52" y="458" fill="url(#accent)" font-size="104" font-weight="900" letter-spacing="-5">USD 200</text>
+
+    <rect x="52" y="498" width="245" height="68" rx="34" fill="url(#accent)"/>
+    <text x="90" y="542" fill="#080808" font-size="22" font-weight="900">COTIZA HOY  →</text>
+    <text x="325" y="522" fill="#ffffff" font-size="17" font-weight="800">WhatsApp</text>
+    <text x="325" y="552" fill="#ff7620" font-size="25" font-weight="900">302 840 2389</text>
+
+    <text x="790" y="598" fill="#8d8d92" font-size="11">Resultados sujetos a indexación y fuentes disponibles.</text>
+  </g>
+</svg>

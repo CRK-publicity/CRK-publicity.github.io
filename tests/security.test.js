@@ -171,6 +171,57 @@ test("public page defers non-critical work and media", () => {
   for (const removed of ["hero-logo-stage", "hero-logo-mark", "product-art-cards", "product-art-neon", "product-art-wrap"]) assert.doesNotMatch(css, new RegExp(removed));
 });
 
+test("public CMS configuration fails closed and preserves the static page as fallback", () => {
+  const html = read("index.html");
+  const app = read("app.js");
+  assert.match(html, /data-site-services/);
+  assert.match(html, /data-site-gallery/);
+  assert.match(html, /img-src 'self' data: https:\/\/wiyhambpgiqbnzwrsykd\.supabase\.co/);
+  assert.match(app, /functions\/v1\/public-site-config/);
+  assert.match(app, /CMS_PUBLIC_ASSET_ORIGIN/);
+  assert.match(app, /object\\\/sign\\\/site-media/);
+  assert.match(app, /replaceChildren/);
+  assert.match(app, /cache: 'no-store'/);
+  assert.doesNotMatch(app, /\.innerHTML\s*=/);
+});
+
+test("CMS writes, publication and private media require an owner with MFA", () => {
+  const schema = read("supabase/migrations/20260717142008_site_content_management.sql");
+  const shared = read("supabase/functions/_shared/backend.ts");
+  const admin = read("supabase/functions/site-admin/index.ts");
+  const upload = read("supabase/functions/site-media-upload/index.ts");
+  const publicConfig = read("supabase/functions/public-site-config/index.ts");
+  const config = read("supabase/config.toml");
+  const browserAdmin = read("admin/admin.js");
+  for (const table of ["site_content", "site_services", "site_media", "payment_methods", "site_publications", "site_publication_state", "site_audit_events"]) {
+    assert.match(schema, new RegExp(`alter table public\\.${table} enable row level security`));
+    assert.match(schema, new RegExp(`alter table public\\.${table} force row level security`));
+    assert.match(schema, new RegExp(`revoke all on table public\\.${table} from public, anon, authenticated`));
+  }
+  assert.match(schema, /public = false/);
+  assert.match(schema, /array\['image\/jpeg', 'image\/png', 'image\/webp'\]/);
+  assert.match(schema, /publish_site_snapshot/);
+  assert.match(schema, /revoke all on function public\.publish_site_snapshot[^;]+from public, anon, authenticated/);
+  assert.match(schema, /grant execute on function public\.publish_site_snapshot[^;]+to service_role/);
+  assert.match(shared, /requireCrmOwner/);
+  assert.match(shared, /auth\.getUser\(accessToken\)/);
+  assert.match(shared, /auth\.mfa\.getAuthenticatorAssuranceLevel\(accessToken\)/);
+  assert.match(shared, /profile\?\.role !== "owner"/);
+  assert.match(admin, /requireCrmOwner\(request\)/);
+  assert.match(admin, /publish_site_snapshot/);
+  assert.match(upload, /file instanceof File/);
+  assert.match(upload, /stripJpegMetadata/);
+  assert.match(upload, /MAX_UPLOAD_BYTES/);
+  assert.match(publicConfig, /createSignedUrls/);
+  assert.match(publicConfig, /STORAGE_PATH_PATTERN/);
+  assert.match(browserAdmin, /functions\.invoke\("site-admin"/);
+  assert.match(browserAdmin, /functions\.invoke\("site-media-upload"/);
+  assert.doesNotMatch(`${admin}${upload}${browserAdmin}`, /\.innerHTML\s*=/);
+  assert.match(config, /\[functions\.site-admin\][^]*verify_jwt = true/);
+  assert.match(config, /\[functions\.site-media-upload\][^]*verify_jwt = true/);
+  assert.match(config, /\[functions\.public-site-config\][^]*verify_jwt = false/);
+});
+
 test("closed quote panel cannot receive focus or create visible horizontal overflow", () => {
   const html = read("index.html");
   const app = read("app.js");
@@ -186,6 +237,8 @@ test("API responses fail closed with JSON security headers and strict CORS", () 
   assert.match(shared, /Content-Security-Policy/);
   assert.match(shared, /Cross-Origin-Resource-Policy/);
   assert.match(shared, /X-Frame-Options/);
+  assert.match(shared, /x-client-info/);
+  assert.match(shared, /x-retry-count/);
   assert.match(shared, /\.\.\.\(origin \? \{ "Access-Control-Allow-Origin": origin \} : \{\}\)/);
   assert.doesNotMatch(shared, /Access-Control-Allow-Origin": "\*"/);
 });
@@ -233,27 +286,41 @@ test("payment return page verifies server state and ignores browser result param
   assert.match(script, /textContent/);
 });
 
-test("Mercado Pago price and idempotency are enforced server-side", () => {
+test("Mercado Pago catalog prices and idempotency are enforced server-side", () => {
   const createPayment = read("supabase/functions/create-payment/index.ts");
+  const paymentClient = read("pago/payment.js");
   const status = read("supabase/functions/payment-status/index.ts");
-  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
-  assert.match(createPayment, /amount: 200_000/);
-  assert.match(createPayment, /unit_price: PRODUCT\.amount/);
-  assert.match(createPayment, /productCode !== PRODUCT\.code/);
+  const originalSql = read("supabase/migrations/202607160001_mercado_pago.sql");
+  const catalogSql = read("supabase/migrations/20260717143308_payment_catalog_checkout.sql");
+  const publishedCatalogSql = read("supabase/migrations/20260717150711_published_catalog_checkout_integrity.sql");
+  assert.doesNotMatch(createPayment, /from\("site_services"\)/);
+  assert.doesNotMatch(createPayment, /from\("payment_methods"\)/);
+  assert.match(createPayment, /p_service_reference: serviceReference/);
+  assert.match(createPayment, /p_payment_mode: useSandbox \? "test" : "live"/);
+  assert.match(createPayment, /unit_price: orderAmount/);
+  assert.match(paymentClient, /serviceId: activeProduct\.serviceId \|\| undefined/);
+  assert.doesNotMatch(createPayment, /payload\.(?:price|amount|currency)/);
   assert.match(createPayment, /check_payment_rate_limit/);
   assert.match(createPayment, /create_payment_order/);
   assert.match(createPayment, /claim_payment_preference/);
   assert.match(createPayment, /p_scope_accepted: true/);
   assert.match(createPayment, /p_privacy_accepted: true/);
   assert.match(status, /select\("title,amount_cop,currency,status"\)/);
-  assert.match(sql, /amount_cop bigint not null check \(amount_cop = 200000\)/);
-  assert.match(sql, /public_token uuid not null unique/);
-  assert.match(sql, /provider_event_key text not null unique/);
-  assert.match(sql, /scope_version text not null/);
-  assert.match(sql, /accepted_at timestamptz not null/);
-  assert.match(sql, /and status = 'processing'/);
-  assert.match(sql, /on delete restrict/);
-  assert.match(sql, /force row level security/g);
+  assert.match(catalogSql, /add column if not exists service_id uuid references public\.site_services/);
+  assert.match(catalogSql, /p_service_id uuid/);
+  assert.match(publishedCatalogSql, /site_services_checkout_product_code_unique_idx/);
+  assert.match(publishedCatalogSql, /site_publication_state/);
+  assert.match(publishedCatalogSql, /jsonb_array_elements\(coalesce\(v_snapshot -> 'services'/);
+  assert.match(publishedCatalogSql, /payment_service_unavailable/);
+  assert.match(publishedCatalogSql, /payment_method_unavailable/);
+  assert.match(publishedCatalogSql, /site_publication_id/);
+  assert.match(publishedCatalogSql, /description text/);
+  assert.match(originalSql, /public_token uuid not null unique/);
+  assert.match(originalSql, /provider_event_key text not null unique/);
+  assert.match(originalSql, /accepted_at timestamptz not null/);
+  assert.match(originalSql, /and status = 'processing'/);
+  assert.match(originalSql, /on delete restrict/);
+  assert.match(originalSql, /force row level security/g);
   assert.doesNotMatch(createPayment, /X-Idempotency-Key/i);
 });
 
@@ -305,16 +372,14 @@ test("CRM recognizes payment activities without exposing provider payloads", () 
   assert.match(sql, /payload_hash text not null/);
   assert.doesNotMatch(sql, /card_number|security_code|document_number/);
 });
-test("payment identity is bound to both normalized contact identifiers", () => {
-  const sql = read("supabase/migrations/202607160001_mercado_pago.sql");
-  const createOrder = sql.slice(
-    sql.indexOf("create or replace function public.create_payment_order"),
-    sql.indexOf("create or replace function public.claim_payment_preference")
-  );
+test("payment identity remains bound to both normalized contact identifiers", () => {
+  const sql = read("supabase/migrations/20260717150711_published_catalog_checkout_integrity.sql");
+  const createOrder = sql.slice(sql.indexOf("create function public.create_payment_order"));
   assert.match(createOrder, /c\.phone_e164 = p_phone and lower\(c\.email\) = lower\(p_email\)/);
   assert.match(createOrder, /payment_identity_conflict/);
-  assert.match(createOrder, /p_scope_version is distinct from/);
+  assert.match(createOrder, /p_scope_version not in/);
   assert.match(createOrder, /lower\(coalesce\(v_contact_email, ''\)\) <> lower\(p_email\)/);
+  assert.match(createOrder, /v_existing_service_id::text is distinct from lower\(p_service_reference\)/);
   assert.doesNotMatch(createOrder, /update public\.contacts\s+set[^;]*(?:full_name|phone_e164|email)\s*=/s);
 });
 
@@ -326,7 +391,8 @@ test("payment consent, privacy disclosure and storage fallback are explicit", ()
   assert.match(page, /condiciones de cancelación o devolución/);
   assert.match(script, /scopeVersion: acceptanceVersions\.scope/);
   assert.match(script, /privacyVersion: acceptanceVersions\.privacy/);
-  assert.match(script, /sessionStorage\.removeItem\("crkPaymentRequestId"\)/);
+  assert.match(script, /sessionStorage\.removeItem\(requestStorageKey\)/);
+  assert.match(script, /requestStorageKey = "crkPaymentRequestId:"/);
   assert.match(script, /let volatileRequestId = ""/);
   assert.match(script, /error\.code === "identity_conflict"/);
   const clearBlock = script.slice(script.indexOf("function clearRequestId"), script.indexOf("function validateField"));
@@ -339,4 +405,23 @@ test("build output uses portable relative asset paths", () => {
   const config = read("vite.config.js");
   assert.match(config, /base: ['"]\.\/['"]/);
   assert.doesNotMatch(config, /base: ['"]\/crkpublicity\/['"]/);
+});
+
+test("raffles use atomic reservations, private files and owner-only administration", () => {
+  const sql = read("supabase/migrations/20260719022558_raffles_and_participants.sql");
+  const publicFunction = read("supabase/functions/raffle-public/index.ts");
+  const adminFunction = read("supabase/functions/raffle-admin/index.ts");
+  const page = read("sorteos/index.html");
+  assert.match(sql, /create table public\.raffle_numbers/);
+  assert.match(sql, /generate_series\(0, 99\)/);
+  assert.match(sql, /pg_advisory_xact_lock/);
+  assert.match(sql, /release_expired_raffle_reservations/);
+  assert.match(sql, /public = false/);
+  assert.match(sql, /revoke all on public\.raffles/);
+  assert.match(publicFunction, /finalize_raffle_participation/);
+  assert.match(publicFunction, /consent !== true/);
+  assert.match(publicFunction, /pending_validation/);
+  assert.match(adminFunction, /requireCrmOwner/);
+  assert.match(adminFunction, /payment_status:"approved"/);
+  assert.match(page, /Sorteos y Premios/);
 });

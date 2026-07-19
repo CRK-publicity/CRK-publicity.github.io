@@ -22,16 +22,16 @@
 
   <main id="main" class="payment-shell">
     <section class="product-summary" aria-labelledby="product-title">
-      <p class="eyebrow">Paquete web inicial</p>
+      <p id="product-eyebrow" class="eyebrow">Paquete web inicial</p>
       <h1 id="product-title">Tu negocio merece una web clara.</h1>
-      <p class="intro">Una landing esencial de una página, basada en una estructura probada y personalizada con tu marca.</p>
-      <strong class="price">$200.000 <small>COP</small></strong>
-      <ul class="scope-list">
+      <p id="product-intro" class="intro">Una landing esencial de una página, basada en una estructura probada y personalizada con tu marca.</p>
+      <strong id="product-price" class="price">$200.000 <small>COP</small></strong>
+      <ul id="product-scope" class="scope-list">
         <li><span aria-hidden="true">✓</span> Diseño responsive y personalización básica</li>
         <li><span aria-hidden="true">✓</span> Formulario y botón de WhatsApp</li>
         <li><span aria-hidden="true">✓</span> SEO local esencial</li>
       </ul>
-      <p class="scope-note"><b>Alcance:</b> dominio, hosting, comercio electrónico, licencias e integraciones avanzadas no están incluidos y se cotizan por separado.</p>
+      <p id="product-scope-note" class="scope-note"><b>Alcance:</b> dominio, hosting, comercio electrónico, licencias e integraciones avanzadas no están incluidos y se cotizan por separado.</p>
       <div id="purchase-conditions" class="purchase-terms">
         <h2>Antes de pagar</h2>
         <p>El cliente entrega textos, logotipo e imágenes listos para usar. Los cambios de alcance se cotizan por separado.</p>
@@ -67,7 +67,7 @@
         <label class="check-row"><input id="scope-confirmation" name="scope" type="checkbox" aria-describedby="payment-error" required><span>Confirmo que recibí y acepté el <a href="#purchase-conditions">alcance, plazo, revisiones y condiciones</a> de mi proyecto.</span></label>
         <label class="check-row"><input id="privacy-confirmation" name="consent" type="checkbox" aria-describedby="payment-error" required><span>Autorizo el tratamiento de mis datos para gestionar la compra, según la <a href="../privacidad/">política de privacidad</a>.</span></label>
         <p id="payment-error" class="form-message" role="alert"></p>
-        <button class="pay-button" type="submit" disabled>Pagar $200.000 COP <span>→</span></button>
+        <button class="pay-button" type="submit" disabled><span id="pay-button-label">Pagar $200.000 COP</span> <span>→</span></button>
         <small class="redirect-note">Te enviaremos al entorno seguro de Mercado Pago para elegir el medio de pago.</small>
       </form>
     </section>

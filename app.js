@@ -53,15 +53,32 @@
     if (open) panel.querySelector('.close').focus();
   }
 
-  document.querySelectorAll('[data-service]').forEach((button) => button.addEventListener('click', () => {
-    const name = button.dataset.service;
+  const serviceButtonBindings = new WeakSet();
+  function setServiceButtonLabel(button, label) {
+    const textNode = [...button.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+    if (textNode) textNode.textContent = `${label} `;
+    else button.prepend(document.createTextNode(`${label} `));
+  }
+  function onServiceButtonClick(event) {
+    const button = event.currentTarget;
+    const name = button.dataset.service || '';
+    const price = Number(button.dataset.price);
+    if (!name || !Number.isFinite(price) || price < 0 || price > 1000000000) return;
     const wasAdded = cart.has(name);
-    if (wasAdded) cart.delete(name); else cart.set(name, Number(button.dataset.price));
+    if (wasAdded) cart.delete(name); else cart.set(name, price);
     button.classList.toggle('added', !wasAdded);
-    button.firstChild.textContent = wasAdded ? 'Agregar ' : 'Agregado ';
+    setServiceButtonLabel(button, wasAdded ? (button.dataset.addLabel || 'Agregar') : (button.dataset.addedLabel || 'Agregado'));
     renderCart();
     showToast(wasAdded ? 'Servicio retirado.' : 'Servicio agregado a tu cotización.');
-  }));
+  }
+  function bindServiceButtons(scope = document) {
+    scope.querySelectorAll('[data-service]').forEach((button) => {
+      if (serviceButtonBindings.has(button)) return;
+      serviceButtonBindings.add(button);
+      button.addEventListener('click', onServiceButtonClick);
+    });
+  }
+  bindServiceButtons();
   document.querySelectorAll('[data-open-quote]').forEach((button) => button.addEventListener('click', () => setPanel(true)));
   document.querySelectorAll('[data-close-quote]').forEach((button) => button.addEventListener('click', () => setPanel(false)));
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') setPanel(false); });
@@ -79,6 +96,298 @@
   const messages = { name: 'Escribe tu nombre.', email: 'Ingresa un correo válido.', phone: 'Ingresa un número de WhatsApp válido.', business: 'Escribe el nombre del negocio.', need: 'Selecciona una opción.' };
   const backendUrl = import.meta.env.VITE_SUPABASE_URL;
   const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const CMS_PUBLIC_ASSET_ORIGIN = 'https://wiyhambpgiqbnzwrsykd.supabase.co';
+  const CMS_MAX_TEXT_LENGTH = 900;
+
+  function isRecord(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+  }
+  function cleanText(value, maxLength = CMS_MAX_TEXT_LENGTH) {
+    if (typeof value !== 'string') return null;
+    const cleaned = value.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
+    return cleaned && cleaned.length <= maxLength ? cleaned : null;
+  }
+  function cleanInteger(value, min, max) {
+    return Number.isSafeInteger(value) && value >= min && value <= max ? value : null;
+  }
+  function readPath(value, path) {
+    return path.split('.').reduce((current, part) => (isRecord(current) ? current[part] : undefined), value);
+  }
+  function safeSiteLink(value) {
+    const raw = cleanText(value, 2048);
+    if (!raw) return null;
+    try {
+      const url = new URL(raw, window.location.href);
+      if (url.origin === window.location.origin) return url.href;
+      return url.protocol === 'https:' ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+  function safeSiteImage(value) {
+    const raw = cleanText(value, 2048);
+    if (!raw) return null;
+    try {
+      const url = new URL(raw, window.location.href);
+      if (url.origin === window.location.origin) return url.href;
+      const publicPath = /^\/storage\/v1\/object\/public\/site-media\/[A-Za-z0-9._~%\-/]+$/.test(url.pathname)
+        && !url.search
+        && !url.hash;
+      const signedPath = /^\/storage\/v1\/object\/sign\/site-media\/[A-Za-z0-9._~%\-/]+$/.test(url.pathname)
+        && url.searchParams.has('token')
+        && [...url.searchParams.keys()].every((key) => key === 'token');
+      const isManagedMedia = url.origin === CMS_PUBLIC_ASSET_ORIGIN && (publicPath || signedPath);
+      return isManagedMedia ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+  function cleanProductCode(value) {
+    const code = cleanText(value, 64);
+    return code && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(code) ? code : null;
+  }
+  function normalizeService(value) {
+    if (!isRecord(value)) return null;
+    const title = cleanText(value.title, 110);
+    const description = cleanText(value.description, 460);
+    if (!title || !description) return null;
+    const features = Array.isArray(value.features)
+      ? value.features.map((feature) => cleanText(feature, 120)).filter(Boolean).slice(0, 12)
+      : [];
+    const ctaData = isRecord(value.cta) ? value.cta : {};
+    const requestedCta = cleanText(ctaData.type ?? value.cta_type, 16);
+    const productCode = cleanProductCode(ctaData.product_code ?? value.checkout_product_code);
+    const configuredUrl = safeSiteLink(ctaData.url ?? value.cta_url);
+    const ctaType = requestedCta === 'checkout' && (configuredUrl || productCode)
+      ? 'checkout'
+      : requestedCta === 'link' && configuredUrl
+        ? 'link'
+        : 'quote';
+    const requestedTheme = cleanText(value.theme, 16);
+    return {
+      title,
+      description,
+      features,
+      price: cleanInteger(value.price_cop, 0, 1000000000),
+      badge: cleanText(value.badge, 42),
+      theme: requestedTheme === 'featured' || value.featured === true ? 'featured' : requestedTheme === 'dark' ? 'dark' : '',
+      cta: {
+        type: ctaType,
+        label: (cleanText(ctaData.label ?? value.cta_label, 36) || (ctaType === 'quote' ? 'Agregar' : 'Ver opción')).replace(/\s*\+\s*$/, ''),
+        url: configuredUrl,
+        productCode
+      }
+    };
+  }
+  function normalizeGalleryItem(value) {
+    if (!isRecord(value)) return null;
+    const imageUrl = safeSiteImage(value.image_url ?? value.imageUrl);
+    if (!imageUrl) return null;
+    const title = cleanText(value.title, 120) || 'Proyecto CRK Publicity';
+    return {
+      imageUrl,
+      title,
+      alt: cleanText(value.alt, 180) || title,
+      category: cleanText(value.category, 60) || (value.section === 'products' ? 'Producto reciente' : 'Trabajo reciente'),
+      url: safeSiteLink(value.url),
+      featured: value.featured === true,
+      wide: value.wide === true,
+      width: cleanInteger(value.width, 1, 6000) || 808,
+      height: cleanInteger(value.height, 1, 6000) || 632
+    };
+  }
+  function parsePublicSiteConfig(payload) {
+    if (!isRecord(payload)) return null;
+    const source = isRecord(payload.snapshot) ? payload.snapshot : isRecord(payload.data) ? payload.data : payload;
+    if (!isRecord(source)) return null;
+    const content = isRecord(source.content) ? source.content : {};
+    const rawServices = Array.isArray(source.services) ? source.services : [];
+    const rawGallery = Array.isArray(source.gallery) ? source.gallery : Array.isArray(source.gallery_items) ? source.gallery_items : [];
+    const services = rawServices.map(normalizeService).filter(Boolean).slice(0, 12);
+    const gallery = rawGallery.map(normalizeGalleryItem).filter(Boolean).slice(0, 24);
+    if (!Object.keys(content).length && !services.length && !gallery.length) return null;
+    return { content, services, gallery };
+  }
+  function applySiteContent(content) {
+    document.querySelectorAll('[data-site-content]').forEach((element) => {
+      const text = cleanText(readPath(content, element.dataset.siteContent || ''), CMS_MAX_TEXT_LENGTH);
+      if (text) element.textContent = text;
+    });
+    document.querySelectorAll('[data-site-link]').forEach((element) => {
+      const destination = safeSiteLink(readPath(content, element.dataset.siteLink || ''));
+      if (!destination) return;
+      const url = new URL(destination);
+      element.href = destination;
+      if (url.origin !== window.location.origin) {
+        element.target = '_blank';
+        element.rel = 'noopener noreferrer';
+      } else {
+        element.removeAttribute('target');
+        element.removeAttribute('rel');
+      }
+    });
+    const pageTitle = cleanText(content.page_title, 120);
+    if (pageTitle) document.title = pageTitle;
+  }
+  function createServiceCard(service, index) {
+    const card = document.createElement('article');
+    card.className = 'service-card';
+    if (service.theme) card.classList.add(service.theme);
+    const icon = document.createElement('div');
+    icon.className = 'service-icon';
+    icon.textContent = String(index + 1).padStart(2, '0');
+    card.append(icon);
+    if (service.badge) {
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.textContent = service.badge;
+      card.append(badge);
+    }
+    const title = document.createElement('h3');
+    title.textContent = service.title;
+    const description = document.createElement('p');
+    description.textContent = service.description;
+    const features = document.createElement('ul');
+    service.features.forEach((feature) => {
+      const item = document.createElement('li');
+      item.textContent = feature;
+      features.append(item);
+    });
+    const footer = document.createElement('div');
+    footer.className = 'service-foot';
+    const price = document.createElement('span');
+    if (service.price === null) {
+      price.textContent = 'A cotizar';
+    } else {
+      price.append(document.createTextNode('Desde '));
+      const amount = document.createElement('strong');
+      amount.textContent = money.format(service.price);
+      price.append(amount);
+    }
+    footer.append(price);
+    if (service.cta.type === 'quote') {
+      const action = document.createElement('button');
+      action.type = 'button';
+      action.dataset.service = service.title;
+      action.dataset.price = String(service.price ?? 0);
+      action.dataset.addLabel = service.cta.label;
+      action.dataset.addedLabel = 'Agregado';
+      action.append(document.createTextNode(`${service.cta.label} `));
+      const symbol = document.createElement('b');
+      symbol.textContent = '+';
+      action.append(symbol);
+      footer.append(action);
+    } else {
+      const action = document.createElement('a');
+      const fallbackCheckout = service.id && service.cta.productCode
+        ? `pago/?service=${encodeURIComponent(service.id)}&product=${encodeURIComponent(service.cta.productCode)}`
+        : null;
+      const destination = service.cta.url || fallbackCheckout;
+      const safeDestination = safeSiteLink(destination);
+      if (!safeDestination) return null;
+      const url = new URL(safeDestination);
+      action.href = safeDestination;
+      action.textContent = `${service.cta.label} +`;
+      if (url.origin !== window.location.origin) {
+        action.target = '_blank';
+        action.rel = 'noopener noreferrer';
+      }
+      footer.append(action);
+    }
+    card.append(title, description, features, footer);
+    return card;
+  }
+  function renderPublishedServices(services) {
+    if (!services.length) return false;
+    const grid = document.querySelector('[data-site-services]');
+    if (!grid) return false;
+    const cards = services.map(createServiceCard).filter(Boolean);
+    if (!cards.length) return false;
+    grid.setAttribute('aria-busy', 'true');
+    grid.replaceChildren(...cards);
+    bindServiceButtons(grid);
+    grid.setAttribute('aria-busy', 'false');
+    return true;
+  }
+  function createGalleryCard(item) {
+    const card = item.url ? document.createElement('a') : document.createElement('article');
+    card.className = 'work-card';
+    if (item.featured) card.classList.add('work-card-featured');
+    if (item.wide) card.classList.add('work-card-wide');
+    if (card instanceof HTMLAnchorElement) {
+      card.href = item.url;
+      const url = new URL(item.url);
+      if (url.origin !== window.location.origin) {
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+      }
+    }
+    const image = document.createElement('img');
+    image.src = item.imageUrl;
+    image.alt = item.alt;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.width = item.width;
+    image.height = item.height;
+    const caption = document.createElement('span');
+    const category = document.createElement('small');
+    category.textContent = item.category;
+    const title = document.createElement('strong');
+    title.textContent = item.title;
+    const symbol = document.createElement('i');
+    symbol.setAttribute('aria-hidden', 'true');
+    symbol.textContent = item.url ? '↗' : '•';
+    caption.append(category, title, symbol);
+    card.append(image, caption);
+    return card;
+  }
+  function renderPublishedGallery(gallery) {
+    if (!gallery.length) return false;
+    const section = document.querySelector('[data-site-gallery-section]');
+    const grid = document.querySelector('[data-site-gallery]');
+    if (!section || !grid) return false;
+    grid.setAttribute('aria-busy', 'true');
+    grid.replaceChildren(...gallery.map(createGalleryCard));
+    section.hidden = false;
+    grid.setAttribute('aria-busy', 'false');
+    return true;
+  }
+  function applyPublishedSiteConfig(config) {
+    applySiteContent(config.content);
+    const didRenderServices = renderPublishedServices(config.services);
+    const didRenderGallery = renderPublishedGallery(config.gallery);
+    if (didRenderServices || didRenderGallery || Object.keys(config.content).length) {
+      document.documentElement.dataset.siteConfig = 'published';
+      const status = document.querySelector('#site-config-status');
+      if (status) status.textContent = 'Contenido actualizado.';
+    }
+  }
+  async function hydratePublishedSiteConfig() {
+    if (!backendUrl || !publicKey) return;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5500);
+    try {
+      const response = await fetch(`${backendUrl}/functions/v1/public-site-config`, {
+        method: 'GET',
+        headers: { Accept: 'application/json', apikey: publicKey },
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      if (!response.ok) return;
+      const config = parsePublicSiteConfig(await response.json());
+      if (config) applyPublishedSiteConfig(config);
+    } catch {
+      // La página estática sigue siendo la fuente de respaldo si el CMS no está disponible.
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+  function schedulePublishedSiteConfig() {
+    const start = () => { void hydratePublishedSiteConfig(); };
+    if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 1800 });
+    else window.setTimeout(start, 350);
+  }
+  schedulePublishedSiteConfig();
   function trackSiteEvent(eventType) {
     if (!backendUrl || !publicKey) return;
     void fetch(`${backendUrl}/functions/v1/track-event`, {

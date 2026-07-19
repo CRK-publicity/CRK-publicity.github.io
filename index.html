@@ -13,7 +13,7 @@
   <link rel="canonical" href="https://iwandezu.github.io/crkpublicity/">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080808">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://wiyhambpgiqbnzwrsykd.supabase.co; media-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <title>CRK Publicity — Tu negocio listo para crecer</title>
@@ -26,7 +26,7 @@
     <a class="logo" href="#inicio" aria-label="CRK Publicity, inicio"><img src="assets/crk-publicity-logo.svg" alt="CRK Publicity" width="123" height="63"></a>
     <button class="menu" type="button" aria-expanded="false" aria-controls="nav"><span class="sr-only">Abrir menú</span><i></i><i></i></button>
     <nav id="nav" aria-label="Principal">
-      <a href="#servicios">Servicios</a><a href="#productos">Productos</a><a href="#trabajos">Trabajos</a><a href="#proceso">Proceso</a><a href="#contacto">Contacto</a>
+      <a href="#servicios">Servicios</a><a href="#productos">Productos</a><a href="#trabajos">Trabajos</a><a href="sorteos/">Sorteos</a><a href="#proceso">Proceso</a><a href="#contacto">Contacto</a>
     </nav>
     <button class="quote-button" type="button" data-open-quote>Mi cotización <span id="cart-count">0</span></button>
   </header>
@@ -34,10 +34,10 @@
   <main id="main">
     <section id="inicio" class="hero">
       <div class="hero-copy">
-        <p class="kicker">Diseño, producción y estrategia digital</p>
-        <h1>Tu negocio ya es bueno.<br><em>Hagamos que se note.</em></h1>
-        <p class="lead">Creamos tu web, tu identidad y piezas impresas; además organizamos tus clientes y el seguimiento para que puedas vender más.</p>
-        <div class="actions"><a class="button primary" href="#productos">Ver productos <span>↘</span></a><a class="button link" href="#trabajos">Ver trabajos</a></div>
+        <p class="kicker" data-site-content="hero.eyebrow">Diseño, producción y estrategia digital</p>
+        <h1><span data-site-content="hero.title">Tu negocio ya es bueno.</span><br><em data-site-content="hero.highlight">Hagamos que se note.</em></h1>
+        <p class="lead" data-site-content="hero.description">Creamos tu web, tu identidad y piezas impresas; además organizamos tus clientes y el seguimiento para que puedas vender más.</p>
+        <div class="actions"><a class="button primary" href="#productos" data-site-link="hero.primaryUrl"><span data-site-content="hero.primaryLabel">Ver productos</span><span aria-hidden="true">↘</span></a><a class="button link" href="#trabajos" data-site-link="hero.secondaryUrl"><span data-site-content="hero.secondaryLabel">Ver trabajos</span></a></div>
       </div>
       <div class="hero-art hero-photo-stage" aria-hidden="true">
         <div class="hero-mascot-scene"><img class="hero-mascot" src="assets/hero/crk-mascot-thumbs-up-transparent.webp" alt="" fetchpriority="high" decoding="async" width="1254" height="1254"></div>
@@ -50,8 +50,8 @@
     <section class="trust-bar" aria-label="Tipos de clientes"><span>Hecho para</span><b>Restaurantes</b><b>Tiendas</b><b>Profesionales</b><b>Servicios</b><b>Marcas locales</b></section>
 
     <section id="servicios" class="section services">
-      <header class="section-head"><div><p class="kicker">Elige lo que necesitas</p><h2>Soluciones que trabajan juntas.</h2></div><p>Empieza con una necesidad concreta. Puedes sumar servicios ahora o crecer después, sin rehacerlo todo.</p></header>
-      <div class="service-grid">
+      <header class="section-head"><div><p class="kicker" data-site-content="services.eyebrow">Elige lo que necesitas</p><h2 data-site-content="services.title">Soluciones que trabajan juntas.</h2></div><p data-site-content="services.description">Empieza con una necesidad concreta. Puedes sumar servicios ahora o crecer después, sin rehacerlo todo.</p></header>
+      <div class="service-grid" data-site-services aria-busy="false">
         <article class="service-card featured">
           <div class="service-icon">01</div><span class="badge">Más elegido</span><h3>Presencia que convierte</h3><p>Un sitio de captación a medida, con estrategia, contenido y recorrido comercial diseñados para tu negocio.</p>
           <ul><li>Arquitectura y contenido estratégico</li><li>Diseño personalizado</li><li>CRM, analítica y SEO local</li></ul>
@@ -135,8 +135,8 @@
 
     <section id="trabajos" class="section portfolio">
       <header class="section-head">
-        <div><p class="kicker">Selección desde Behance</p><h2>Trabajos que hablan por nosotros.</h2></div>
-        <div class="portfolio-intro"><p>Diseño gráfico, ilustración, campañas y fotografía de producto creados por CRK Publicity.</p><a href="https://www.behance.net/ivanmartinez20" target="_blank" rel="noopener noreferrer">Ver perfil completo en Behance ↗</a></div>
+        <div><p class="kicker" data-site-content="portfolio.eyebrow">Selección desde Behance</p><h2 data-site-content="portfolio.title">Trabajos que hablan por nosotros.</h2></div>
+        <div class="portfolio-intro"><p data-site-content="portfolio.description">Diseño gráfico, ilustración, campañas y fotografía de producto creados por CRK Publicity.</p><a href="https://www.behance.net/ivanmartinez20" target="_blank" rel="noopener noreferrer" data-site-link="portfolio.profile_url"><span data-site-content="portfolio.profile_label">Ver perfil completo en Behance ↗</span></a></div>
       </header>
       <div class="portfolio-grid">
         <a class="work-card work-card-featured" href="https://www.behance.net/gallery/247117469/SALTO-DE-FE" target="_blank" rel="noopener noreferrer"><img src="assets/behance/01-salto-de-fe.webp" alt="Proyecto Salto de Fe de CRK Publicity" loading="lazy" decoding="async" width="808" height="632"><span><small>Campaña visual</small><strong>Salto de Fe</strong><i>↗</i></span></a>
@@ -151,6 +151,10 @@
         <a class="work-card" href="https://www.behance.net/gallery/144784177/flayer-generic" target="_blank" rel="noopener noreferrer"><img src="assets/behance/10-flyer-generico.webp" alt="Colección de volantes gráficos" loading="lazy" decoding="async" width="808" height="632"><span><small>Volante</small><strong>Colección gráfica</strong><i>↗</i></span></a>
         <a class="work-card" href="https://www.behance.net/gallery/129439595/FOTO-DE-PRODUCTO" target="_blank" rel="noopener noreferrer"><img src="assets/behance/11-foto-producto.webp" alt="Fotografía comercial de producto" loading="lazy" decoding="async" width="808" height="632"><span><small>Fotografía</small><strong>Foto de producto</strong><i>↗</i></span></a>
         <a class="work-card" href="https://www.behance.net/gallery/129321223/JEWEL" target="_blank" rel="noopener noreferrer"><img src="assets/behance/12-jewel.webp" alt="Proyecto de fotografía Jewel" loading="lazy" decoding="async" width="808" height="632"><span><small>Fotografía</small><strong>Jewel</strong><i>↗</i></span></a>
+      </div>
+      <div class="cms-gallery" data-site-gallery-section hidden>
+        <p class="cms-gallery-label">Nuevos proyectos</p>
+        <div class="portfolio-grid cms-gallery-grid" data-site-gallery aria-live="polite" aria-busy="false"></div>
       </div>
     </section>
 
@@ -174,7 +178,7 @@
 
     <section id="contacto" class="contact">
       <div class="section contact-grid">
-        <div><p class="kicker">Hablemos de tu negocio</p><h2>Cuéntanos dónde estás. Te mostramos el siguiente paso.</h2><p>Respondemos en un día hábil. Sin presión y sin compromisos.</p><div class="contact-detail"><span>01</span><div><b>Diagnóstico inicial</b><small>20 minutos por videollamada</small></div></div><div class="contact-detail"><span>02</span><div><b>Propuesta clara</b><small>Alcance, tiempos y precio por escrito</small></div></div></div>
+        <div><p class="kicker" data-site-content="contact.eyebrow">Hablemos de tu negocio</p><h2 data-site-content="contact.title">Cuéntanos dónde estás. Te mostramos el siguiente paso.</h2><p data-site-content="contact.description">Respondemos en un día hábil. Sin presión y sin compromisos.</p><div class="contact-detail"><span>01</span><div><b>Diagnóstico inicial</b><small>20 minutos por videollamada</small></div></div><div class="contact-detail"><span>02</span><div><b>Propuesta clara</b><small>Alcance, tiempos y precio por escrito</small></div></div></div>
         <form id="lead-form" novalidate>
           <div class="field"><label for="name">Nombre completo</label><input id="name" name="name" autocomplete="name" maxlength="100" required minlength="2"><small class="error" aria-live="polite"></small></div>
           <div class="field"><label for="email">Correo electrónico</label><input id="email" name="email" type="email" autocomplete="email" maxlength="180" required><small class="error" aria-live="polite"></small></div>
@@ -216,6 +220,7 @@
   </aside>
   <div class="overlay" data-close-quote></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <p id="site-config-status" class="sr-only" role="status" aria-live="polite"></p>
   <script type="module" src="/app.js"></script>
 </body>
 </html>

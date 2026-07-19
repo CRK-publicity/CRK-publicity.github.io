@@ -173,3 +173,10 @@ form{padding:30px;border:1px solid rgba(255,255,255,.10);border-radius:30px;back
 .service-card.payment-starter .service-note{margin:0;color:#98989d;font-size:11px;font-weight:500;line-height:1.5}
 .service-foot a{border:0;border-bottom:1px solid currentColor;background:transparent;color:inherit;font-size:12px;font-weight:750;letter-spacing:.01em;text-decoration:none;text-transform:uppercase}
 .service-foot a:hover{color:var(--accent)}
+/* Published CMS content is progressively enhanced after the static page has painted. */
+[data-site-services][aria-busy="true"],[data-site-gallery][aria-busy="true"]{opacity:.72}
+.cms-gallery{margin-top:18px;content-visibility:auto;contain-intrinsic-size:auto 620px}
+.cms-gallery-label{margin:0 0 14px;color:#98989d;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.cms-gallery-grid{margin:0}
+html[data-site-config="published"] [data-site-services],html[data-site-config="published"] [data-site-gallery]{transition:opacity .18s ease}
+@media(prefers-reduced-motion:reduce){html[data-site-config="published"] [data-site-services],html[data-site-config="published"] [data-site-gallery]{transition:none}}

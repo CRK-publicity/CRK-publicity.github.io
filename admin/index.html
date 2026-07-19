@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#080808">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://wiyhambpgiqbnzwrsykd.supabase.co; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="no-referrer">
   <title>CRK CRM · Panel privado</title>
   <link rel="stylesheet" href="./admin.css">
@@ -20,7 +20,7 @@
       <div class="glass"><form id="login-form"><h2>Iniciar sesión</h2><label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" minlength="12" required></label><button class="primary" type="submit">Entrar al CRM</button><p id="login-error" class="error" role="alert"></p></form><form id="activation-form" hidden><span class="eyebrow">Activar cuenta</span><h2>Crea tu contraseña</h2><p class="activation-copy">Usa al menos 12 caracteres y no repitas una contraseña de otras cuentas.</p><label>Nueva contraseña<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label>Confirmar contraseña<input name="confirmation" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary" type="submit">Guardar y entrar</button><p id="activation-error" class="error" role="alert"></p></form><form id="mfa-form" hidden><span class="eyebrow">Verificación en dos pasos</span><h2 id="mfa-title">Protege tu cuenta</h2><p id="mfa-copy" class="activation-copy">Escanea el código QR con tu aplicación de autenticación.</p><div id="mfa-enrollment" class="mfa-enrollment"><img id="mfa-qr" width="220" height="220" alt="Código QR para configurar la autenticación en dos pasos"><small>El código cambia cada 30 segundos.</small></div><label>Código de 6 dígitos<input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label><button class="primary" type="submit">Verificar y entrar</button><p id="mfa-error" class="error" role="alert"></p></form></div>
     </section>
     <section id="workspace" class="workspace" hidden>
-      <aside class="sidebar"><nav><button class="nav-item active" data-view="inbox"><span>◉</span>Bandeja</button><button class="nav-item" data-view="clients"><span>◎</span>Clientes</button></nav><div class="security-note"><b>Datos protegidos</b><span>Acceso por usuario y permisos.</span></div></aside>
+      <aside class="sidebar"><nav><button class="nav-item active" data-view="inbox"><span>◉</span>Bandeja</button><button class="nav-item" data-view="clients"><span>◎</span>Clientes</button><button class="nav-item" data-view="participants" data-owner-only hidden><span>◈</span>Participantes</button><button class="nav-item" data-view="site" data-owner-only hidden><span>◈</span>Sitio web</button></nav><div class="security-note"><b>Datos protegidos</b><span>Acceso por usuario y permisos.</span></div></aside>
       <div class="content">
         <header class="page-head"><div><span class="eyebrow">CRK Publicity</span><h1 id="page-title">Bandeja de atención</h1></div><button id="refresh" class="ghost" type="button">Actualizar</button></header>
         <div class="metrics"><article><span>Clientes</span><strong id="metric-clients">—</strong></article><article><span>Por atender</span><strong id="metric-waiting">—</strong></article><article><span>Oportunidades</span><strong id="metric-qualified">—</strong></article><article><span>Visitas</span><strong id="metric-visits">—</strong></article><article><span>Clics</span><strong id="metric-clicks">—</strong></article></div>
@@ -41,6 +41,110 @@
 <div id="message-list" class="message-list" aria-live="polite"></div><p id="channel-note" class="channel-note" hidden>Esta solicitud llegó desde la web. Puedes contactar al cliente con el botón de WhatsApp de su ficha.</p><form id="reply-form" class="reply-form"><label class="sr-only" for="reply">Respuesta</label><textarea id="reply" maxlength="4000" placeholder="Escribe una respuesta…" required></textarea><button type="submit">Enviar</button></form><p id="reply-error" class="error" role="alert"></p></div></div>
         </section>
         <section id="clients-view" class="panel" hidden><div class="panel-title"><div><h2>Clientes registrados</h2><p>Actualiza su etapa comercial sin perder el historial.</p></div><input id="client-search" type="search" placeholder="Buscar cliente…" aria-label="Buscar cliente"></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Contacto</th><th>Origen</th><th>Etapa</th><th>Última actividad</th></tr></thead><tbody id="client-table"></tbody></table></div></section>
+        <section id="participants-view" class="panel" hidden>
+  <div class="panel-title"><div><h2>Participantes de sorteos</h2><p>Valida pagos manualmente y conserva el historial auditable.</p></div><button id="raffle-refresh" class="ghost" type="button">Actualizar</button></div>
+  <div class="raffle-admin-tools"><form id="raffle-form" class="raffle-form"><input name="id" type="hidden"><input name="slug" placeholder="identificador-del-sorteo" required><input name="title" placeholder="Título del sorteo" required><input name="prizeName" placeholder="Premio" required><textarea name="description" placeholder="Descripción" required></textarea><label>Banner<input name="bannerFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Imagen del premio<input name="prizeFile" type="file" accept="image/jpeg,image/png,image/webp"></label><input name="bannerPath" type="hidden"><input name="prizeImagePath" type="hidden"><input name="priceCop" type="number" min="0" placeholder="Valor por número" required><select name="status"><option value="draft">Borrador</option><option value="upcoming">Próximamente</option><option value="active">Activo</option><option value="sold_out">Agotado</option><option value="finished">Finalizado</option></select><input name="maxNumbersPerParticipant" type="number" min="1" max="100" value="1" required><input name="reservationMinutes" type="number" min="5" max="120" value="20" required><input name="nequiNumber" placeholder="Número Nequi"><textarea name="paymentInstructions" placeholder="Instrucciones de pago"></textarea><textarea name="termsText" placeholder="Términos y condiciones"></textarea><textarea name="privacyText" placeholder="Texto de autorización de datos"></textarea><button class="primary compact" type="submit">Guardar sorteo</button></form><div class="table-wrap"><table><thead><tr><th>Participante</th><th>Sorteo</th><th>Números</th><th>Pago</th><th>Registro</th><th>Acciones</th></tr></thead><tbody id="participants-table"></tbody></table></div></div>
+<form id="raffle-quick-form" class="raffle-form raffle-quick-form" novalidate>
+  <input name="id" type="hidden"><input name="bannerPath" type="hidden"><input name="prizeImagePath" type="hidden">
+  <div><span class="eyebrow">CreaciÃ³n rÃ¡pida</span><h3>Publica un sorteo en un minuto</h3><p>Solo necesitas nombre, premio y precio. Las reglas restantes usan valores seguros por defecto.</p></div>
+  <label>Nombre del sorteo<input name="title" placeholder="Ej. Sorteo CRK de agosto" maxlength="140" required></label>
+  <label>Premio<input name="prizeName" placeholder="Ej. Bono de $500.000 COP" maxlength="160" required></label>
+  <label>Valor por nÃºmero (COP)<input name="priceCop" type="number" min="0" max="999999999" inputmode="numeric" placeholder="5000" required></label>
+  <label>Estado<select name="status"><option value="draft">Guardar como borrador</option><option value="active">Publicar y vender</option><option value="upcoming">PrÃ³ximamente</option></select></label>
+  <details class="raffle-advanced"><summary>Personalizar imÃ¡genes, reglas y pago</summary><div class="raffle-advanced-grid"><label>DescripciÃ³n<textarea name="description" maxlength="3000" placeholder="Detalles para tus clientes"></textarea></label><label>Banner<input name="bannerFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Imagen del premio<input name="prizeFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Identificador web<input name="slug" maxlength="80" placeholder="Se crea automÃ¡ticamente"></label><label>MÃ¡ximo de nÃºmeros por persona<input name="maxNumbersPerParticipant" type="number" min="1" max="100" value="1"></label><label>Reserva en minutos<input name="reservationMinutes" type="number" min="5" max="120" value="20"></label><label>Nequi<input name="nequiNumber" maxlength="30" placeholder="300 000 0000"></label><label>Instrucciones de pago<textarea name="paymentInstructions" maxlength="2000" placeholder="Transfiere y adjunta el comprobante."></textarea></label><label>TÃ©rminos<textarea name="termsText" maxlength="10000" placeholder="TÃ©rminos del sorteo."></textarea></label><label>AutorizaciÃ³n de datos<textarea name="privacyText" maxlength="2000" placeholder="Autorizo el tratamiento de mis datos."></textarea></label></div></details>
+  <p id="raffle-status" class="site-status" role="status" aria-live="polite"></p><button class="primary compact" type="submit">Crear sorteo</button>
+</form></section><section id="site-view" class="site-view" hidden aria-labelledby="site-view-title">
+          <header class="site-intro">
+            <div>
+              <span class="eyebrow">Editor protegido</span>
+              <h2 id="site-view-title">Gestiona tu sitio web</h2>
+              <p>Actualiza contenido, servicios, fotos y opciones de pago sin modificar el código. Los cambios se revisan antes de publicarse.</p>
+            </div>
+            <div class="publication-pill"><span>Estado público</span><strong id="publication-state">Sin publicar</strong></div>
+          </header>
+          <p id="site-admin-status" class="site-status" role="status" aria-live="polite">Cargando la configuración del sitio…</p>
+          <div class="site-tabs" role="tablist" aria-label="Configuración del sitio">
+            <button type="button" class="site-tab active" id="site-tab-page" data-site-tab="page" role="tab" aria-selected="true" aria-controls="site-panel-page">Página</button>
+            <button type="button" class="site-tab" id="site-tab-services" data-site-tab="services" role="tab" aria-selected="false" aria-controls="site-panel-services">Servicios</button>
+            <button type="button" class="site-tab" id="site-tab-gallery" data-site-tab="gallery" role="tab" aria-selected="false" aria-controls="site-panel-gallery">Fotos</button>
+            <button type="button" class="site-tab" id="site-tab-payments" data-site-tab="payments" role="tab" aria-selected="false" aria-controls="site-panel-payments">Medios de pago</button>
+            <button type="button" class="site-tab" id="site-tab-publication" data-site-tab="publication" role="tab" aria-selected="false" aria-controls="site-panel-publication">Publicación</button>
+          </div>
+
+          <section id="site-panel-page" class="site-panel" data-site-panel="page" role="tabpanel" aria-labelledby="site-tab-page">
+            <div class="site-panel-heading"><div><h3>Contenido principal</h3><p>Campos con formato controlado para conservar el diseño y la velocidad de la página.</p></div><span class="secure-chip">Sin HTML ni scripts</span></div>
+            <form id="site-content-form" class="editor-form" novalidate>
+              <div class="form-grid form-grid-three">
+                <label>Etiqueta superior<input name="heroEyebrow" maxlength="80" autocomplete="off" placeholder="DISEÑO, PRODUCCIÓN Y ESTRATEGIA DIGITAL"></label>
+                <label>Texto destacado<input name="heroAccent" maxlength="90" autocomplete="off" placeholder="Hagamos que se note."></label>
+                <label>Texto botón principal<input name="heroPrimaryLabel" maxlength="32" autocomplete="off" placeholder="Ver productos"></label>
+              </div>
+              <label>Titular principal<textarea name="heroTitle" maxlength="160" rows="2" required placeholder="Tu negocio ya es bueno."></textarea></label>
+              <label>Descripción principal<textarea name="heroDescription" maxlength="320" rows="3" required placeholder="Cuéntale a tus clientes lo que haces."></textarea></label>
+              <div class="form-grid">
+                <label>Enlace botón principal<input name="heroPrimaryUrl" type="text" inputmode="url" maxlength="500" autocomplete="url" placeholder="https://… o #productos"></label>
+                <label>Texto botón secundario<input name="heroSecondaryLabel" maxlength="32" autocomplete="off" placeholder="Ver trabajos"></label>
+                <label>Enlace botón secundario<input name="heroSecondaryUrl" type="text" inputmode="url" maxlength="500" autocomplete="url" placeholder="https://… o #trabajos"></label>
+              </div>
+              <div class="form-grid">
+                <label>Etiqueta de contacto<input name="contactEyebrow" maxlength="80" autocomplete="off" placeholder="Hablemos de tu negocio"></label>
+                <label>Título de contacto<input name="contactTitle" maxlength="110" required autocomplete="off" placeholder="Cuéntanos dónde estás. Te mostramos el siguiente paso."></label>
+              </div>
+              <label>Descripción de contacto<textarea name="contactDescription" maxlength="420" rows="2" required placeholder="Respondemos en un día hábil. Sin presión y sin compromisos."></textarea></label>
+              <div class="form-actions"><p>Las direcciones solo aceptan enlaces seguros (https) o anclas internas.</p><button class="primary compact" type="submit">Guardar contenido</button></div>
+            </form>
+          </section>
+
+          <section id="site-panel-services" class="site-panel" data-site-panel="services" role="tabpanel" aria-labelledby="site-tab-services" hidden>
+            <div class="site-panel-heading"><div><h3>Servicios y ofertas</h3><p>Define qué vendes y cómo debe continuar el cliente. El valor se gestiona desde el servidor al cobrar.</p></div><span class="secure-chip">Precio validado</span></div>
+            <div class="site-management-grid">
+              <form id="service-form" class="editor-form compact-form" novalidate>
+                <input name="id" type="hidden">
+                <div class="form-grid"><label>Nombre del servicio<input name="title" maxlength="90" required autocomplete="off"></label><label>Identificador<input name="slug" maxlength="60" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required autocomplete="off" placeholder="pagina-web-inicial"></label></div>
+                <label>Descripción<textarea name="summary" maxlength="360" rows="3" required></textarea></label>
+                <label>Incluye (un punto por línea)<textarea name="features" maxlength="900" rows="4" placeholder="Diseño responsive&#10;Formulario y WhatsApp"></textarea></label>
+                <div class="form-grid"><label>Precio COP (opcional para cotización)<input name="priceCop" type="number" min="1000" max="1000000000" step="1000" inputmode="numeric"></label><label>Orden<input name="sortOrder" type="number" min="0" max="9999" step="1" value="0" inputmode="numeric"></label></div>
+                <div class="form-grid"><label>Acción del botón<select name="ctaType"><option value="quote">Solicitar cotización</option><option value="checkout">Ir a pagar</option><option value="link">Abrir enlace</option></select></label><label data-service-checkout>Producto de cobro<input name="checkoutProductCode" maxlength="80" autocomplete="off" placeholder="web_starter"></label><label data-service-link hidden>Enlace externo<input name="ctaUrl" type="url" maxlength="500" autocomplete="url" placeholder="https://…"></label></div>
+                <label class="checkbox-label"><input name="published" type="checkbox" checked><span>Visible en la página pública</span></label>
+                <div class="form-actions"><button id="service-reset" class="ghost" type="button">Nuevo servicio</button><button class="primary compact" type="submit">Guardar servicio</button></div>
+              </form>
+              <div class="editor-list-wrap"><div class="editor-list-heading"><h4>Servicios actuales</h4><span id="service-count">0</span></div><div id="service-list" class="editor-list" aria-live="polite"></div></div>
+            </div>
+          </section>
+
+          <section id="site-panel-gallery" class="site-panel" data-site-panel="gallery" role="tabpanel" aria-labelledby="site-tab-gallery" hidden>
+            <div class="site-panel-heading"><div><h3>Fotos del portafolio</h3><p>Sube únicamente imágenes públicas para productos o trabajos. El sistema valida formato y tamaño antes de guardar.</p></div><span class="secure-chip">JPG · PNG · WebP</span></div>
+            <div class="site-management-grid">
+              <form id="media-form" class="editor-form compact-form" novalidate>
+                <label>Archivo<input name="file" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+                <div class="form-grid"><label>Título<input name="title" maxlength="90" required autocomplete="off" placeholder="Aviso luminoso"></label><label>Sección<select name="section"><option value="portfolio">Trabajos realizados</option><option value="products">Productos</option></select></label></div>
+                <label>Descripción accesible<input name="altText" maxlength="180" required autocomplete="off" placeholder="Describe lo que se ve en la foto"></label>
+                <div class="form-grid"><label>Orden<input name="sortOrder" type="number" min="0" max="9999" step="1" value="0" inputmode="numeric"></label><label class="checkbox-label"><input name="published" type="checkbox" checked><span>Publicar al subir</span></label></div>
+                <div class="form-actions"><p>Máximo 5 MB. No subas información de clientes, documentos ni imágenes con datos sensibles.</p><button class="primary compact" type="submit">Subir foto</button></div>
+              </form>
+              <div class="editor-list-wrap"><div class="editor-list-heading"><h4>Fotos publicadas</h4><span id="media-count">0</span></div><div id="media-list" class="media-grid" aria-live="polite"></div></div>
+            </div>
+          </section>
+
+          <section id="site-panel-payments" class="site-panel" data-site-panel="payments" role="tabpanel" aria-labelledby="site-tab-payments" hidden>
+            <div class="site-panel-heading"><div><h3>Medios de pago</h3><p>Configura Mercado Pago sin exponer credenciales. Las claves privadas se administran como secretos del backend, nunca desde el navegador.</p></div><span class="secure-chip">Secretos protegidos</span></div>
+            <div class="site-management-grid">
+              <form id="payment-method-form" class="editor-form compact-form" novalidate>
+                <input name="id" type="hidden">
+                <div class="form-grid"><label>Nombre visible<input name="label" maxlength="70" required autocomplete="off" value="Mercado Pago"></label><label>Código<input name="code" maxlength="50" required readonly value="mercado_pago"></label></div>
+                <div class="form-grid"><label>Proveedor<select name="provider"><option value="mercado_pago">Mercado Pago</option></select></label><label>Modo<select name="mode"><option value="live">Producción</option><option value="test">Prueba</option></select></label></div>
+                <div class="form-grid"><label>Orden<input name="sortOrder" type="number" min="0" max="9999" step="1" value="0" inputmode="numeric"></label><label class="checkbox-label"><input name="enabled" type="checkbox"><span>Disponible para clientes</span></label></div>
+                <div class="form-actions"><button id="payment-method-reset" class="ghost" type="button">Restablecer</button><button class="primary compact" type="submit">Guardar configuración</button></div>
+              </form>
+              <div class="editor-list-wrap"><div class="editor-list-heading"><h4>Configuración de Mercado Pago</h4><span id="payment-method-count">0</span></div><div id="payment-method-list" class="editor-list" aria-live="polite"></div></div>
+            </div>
+          </section>
+
+          <section id="site-panel-publication" class="site-panel" data-site-panel="publication" role="tabpanel" aria-labelledby="site-tab-publication" hidden>
+            <div class="site-panel-heading"><div><h3>Revisar y publicar</h3><p>La publicación crea una versión registrada de los cambios. Los visitantes verán la última versión publicada, no los borradores.</p></div><span class="secure-chip">Registro de auditoría</span></div>
+            <div class="publication-card"><div><span class="eyebrow">Versión pública</span><h4 id="publication-title">Aún no hay una versión publicada</h4><p id="publication-description">Guarda tus cambios y publica cuando estés listo. Cada publicación queda registrada con su fecha y usuario.</p></div><dl><div><dt>Servicios visibles</dt><dd id="publication-services">0</dd></div><div><dt>Fotos visibles</dt><dd id="publication-media">0</dd></div><div><dt>Última publicación</dt><dd id="publication-date">—</dd></div></dl><button id="publish-site" class="primary publication-button" type="button">Publicar cambios</button></div>
+            <p class="publication-note">Antes de publicar, revisa que los precios, enlaces, fotos y textos sean correctos. Las credenciales de Mercado Pago y otros proveedores no se almacenan aquí.</p>
+          </section>
       </div>
     </section>
   </main>

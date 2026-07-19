@@ -9,7 +9,7 @@ ServerSignature Off
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Cross-Origin-Resource-Policy "same-origin"
-  Header always set Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://wiyhambpgiqbnzwrsykd.supabase.co; media-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
   Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains" env=HTTPS
   <FilesMatch "\.(?:css|js|webp|png|jpe?g|svg|ico|mp4)$">
     Header set Cache-Control "public, max-age=31536000, immutable"

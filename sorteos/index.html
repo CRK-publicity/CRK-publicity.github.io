@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Sorteos y premios de CRK Publicity. Consulta números disponibles y participa de forma segura.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#080808">
+  <link rel="canonical" href="https://iwandezu.github.io/crkpublicity/sorteos/">
+  <link rel="stylesheet" href="./raffles.css">
+  <title>Sorteos y Premios · CRK Publicity</title>
+</head>
+<body>
+  <header class="topbar"><a href="../" class="brand"><img src="../assets/crk-publicity-logo.svg" width="123" height="63" alt="CRK Publicity"></a><a href="../" class="back">← Volver al sitio</a></header>
+  <main id="main"><section class="hero"><p class="eyebrow">SORTEOS Y PREMIOS</p><h1>Participa con reglas claras.</h1><p>Elige tus números disponibles, registra tu información y envía tu comprobante para validación manual.</p></section><section id="raffles" class="raffles" aria-live="polite"><p class="loading">Cargando sorteos…</p></section></main>
+  <dialog id="raffle-dialog" class="dialog"><form method="dialog"><button class="close" value="cancel" aria-label="Cerrar">×</button></form><div id="raffle-detail"></div></dialog>
+  <dialog id="participation-dialog" class="dialog"><form method="dialog"><button class="close" value="cancel" aria-label="Cerrar">×</button></form><div id="participation-content"></div></dialog>
+  <template id="empty-template"><article class="empty"><h2>No hay sorteos publicados.</h2><p>Vuelve pronto para conocer los próximos premios de CRK Publicity.</p></article></template>
+  <script type="module" src="./raffles.js"></script>
+</body>
+</html>

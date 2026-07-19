@@ -24,14 +24,58 @@ export function allowedOrigin(request: Request) {
   return configured.includes(origin) ? origin : "";
 }
 
-export function corsHeaders(origin: string) {
+export function corsHeaders(origin: string, methods = "POST, OPTIONS") {
   return {
     ...(origin ? { "Access-Control-Allow-Origin": origin } : {}),
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-retry-count, x-supabase-api-version",
+    "Access-Control-Allow-Methods": methods,
     "Access-Control-Max-Age": "600",
     "Vary": "Origin",
   };
+}
+
+export type CrmOwner = {
+  userId: string;
+  email: string;
+};
+
+export type OwnerAuthResult =
+  | { owner: CrmOwner; error?: never }
+  | { owner?: never; error: { status: number; message: string } };
+
+/**
+ * Verifies the access token, MFA assurance level and the server-side CRM role.
+ * Do not replace this with user metadata: metadata is controlled by the client.
+ */
+export async function requireCrmOwner(request: Request): Promise<OwnerAuthResult> {
+  const authorization = request.headers.get("authorization") || "";
+  const accessToken = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  const url = Deno.env.get("SUPABASE_URL") || "";
+  const anon = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  if (!accessToken) return { error: { status: 401, message: "Debes iniciar sesión" } };
+  if (!url || !anon) return { error: { status: 500, message: "La configuración de seguridad no está disponible" } };
+
+  const userClient = createClient(url, anon, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data: userData, error: userError } = await userClient.auth.getUser(accessToken);
+  if (userError || !userData.user) return { error: { status: 401, message: "Sesión inválida" } };
+
+  const { data: assurance, error: assuranceError } = await userClient.auth.mfa.getAuthenticatorAssuranceLevel(accessToken);
+  if (assuranceError || assurance?.currentLevel !== "aal2") {
+    return { error: { status: 403, message: "Se requiere verificación en dos pasos" } };
+  }
+
+  const { data: profile, error: profileError } = await adminClient()
+    .from("profiles")
+    .select("role")
+    .eq("user_id", userData.user.id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (profile?.role !== "owner") return { error: { status: 403, message: "Solo la cuenta propietaria puede administrar el sitio" } };
+
+  return { owner: { userId: userData.user.id, email: userData.user.email || "" } };
 }
 
 export function json(data: unknown, status = 200, headers: HeadersInit = {}) {

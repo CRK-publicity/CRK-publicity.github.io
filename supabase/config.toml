@@ -20,6 +20,27 @@ verify_jwt = false
 
 [functions.mercado-pago-webhook]
 verify_jwt = false
+
+[functions.public-site-config]
+verify_jwt = false
+
+[functions.raffle-public]
+verify_jwt = false
+
+[functions.raffle-admin]
+verify_jwt = true
+
+[functions.raffle-file-upload]
+verify_jwt = false
+
+[functions.raffle-admin-upload]
+verify_jwt = true
+
+[functions.site-admin]
+verify_jwt = true
+
+[functions.site-media-upload]
+verify_jwt = true
 [auth]
 site_url = "https://iwandezu.github.io/crkpublicity/admin/"
 additional_redirect_urls = ["https://iwandezu.github.io/crkpublicity/admin/", "http://localhost:5173/crkpublicity/admin/"]

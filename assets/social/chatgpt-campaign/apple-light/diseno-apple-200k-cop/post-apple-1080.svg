@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1080" viewBox="0 0 1080 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Página web desde 200.000 pesos colombianos</title>
+  <desc id="desc">Anuncio de CRK Publicity para páginas web preparadas para buscadores y asistentes de inteligencia artificial.</desc>
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f7f7f9"/>
+      <stop offset=".55" stop-color="#eef0f3"/>
+      <stop offset="1" stop-color="#e4e7eb"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" x2="1">
+      <stop stop-color="#ff4d00"/>
+      <stop offset="1" stop-color="#ff8a00"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffffff" stop-opacity=".93"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".62"/>
+    </linearGradient>
+    <radialGradient id="warmGlow">
+      <stop stop-color="#ff8a00" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#ff8a00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coolGlow">
+      <stop stop-color="#7c93ff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#7c93ff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="26" flood-color="#20242a" flood-opacity=".14"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#4b515c" flood-opacity=".12"/>
+    </filter>
+    <filter id="logoGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feFlood flood-color="#ff5a00" flood-opacity=".25" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#page)"/>
+  <circle cx="948" cy="170" r="350" fill="url(#warmGlow)"/>
+  <circle cx="145" cy="915" r="410" fill="url(#coolGlow)"/>
+  <rect x="32" y="32" width="1016" height="1016" rx="60" fill="#ffffff" fill-opacity=".42" stroke="#ffffff" stroke-opacity=".84" filter="url(#shadow)"/>
+
+  <g font-family="'Segoe UI Variable Display', 'Segoe UI', Arial, sans-serif">
+    <image xlink:href="../../../crk-publicity-logo.svg" x="78" y="68" width="132" height="68" filter="url(#logoGlow)"/>
+    <text x="232" y="96" fill="#19191b" font-size="18" font-weight="800" letter-spacing="1.8">DISEÑO WEB</text>
+    <text x="232" y="122" fill="#6e6e73" font-size="16" font-weight="600">CRK Publicity</text>
+
+    <rect x="758" y="72" width="242" height="55" rx="27.5" fill="#ffffff" fill-opacity=".72" stroke="#ffffff" filter="url(#softShadow)"/>
+    <circle cx="791" cy="99" r="8" fill="#ff5a00"/>
+    <text x="811" y="106" fill="#252528" font-size="17" font-weight="800">WEB + SEO PARA IA</text>
+
+    <text x="78" y="244" fill="#1d1d1f" font-size="62" font-weight="850" letter-spacing="-2.8">Haz que tu negocio</text>
+    <text x="78" y="315" fill="#1d1d1f" font-size="62" font-weight="850" letter-spacing="-2.8">aparezca en</text>
+    <text x="78" y="393" fill="url(#orange)" font-size="76" font-weight="900" letter-spacing="-3.6">ChatGPT.</text>
+    <text x="82" y="451" fill="#6e6e73" font-size="21" font-weight="600">Una web clara, rápida y preparada</text>
+    <text x="82" y="481" fill="#6e6e73" font-size="21" font-weight="600">para ser encontrada.</text>
+
+    <g transform="translate(625 215) scale(.92)" filter="url(#shadow)">
+      <rect width="405" height="410" rx="38" fill="url(#glass)" stroke="#ffffff" stroke-width="2"/>
+      <circle cx="34" cy="32" r="7" fill="#ff5f57"/>
+      <circle cx="58" cy="32" r="7" fill="#febc2e"/>
+      <circle cx="82" cy="32" r="7" fill="#28c840"/>
+      <rect x="111" y="20" width="259" height="25" rx="12.5" fill="#eef0f3"/>
+
+      <rect x="26" y="78" width="353" height="66" rx="25" fill="#f1f2f5" stroke="#e0e2e7"/>
+      <circle cx="58" cy="111" r="13" fill="none" stroke="#7c7c82" stroke-width="4"/>
+      <path d="M68 121l10 10" stroke="#7c7c82" stroke-width="4" stroke-linecap="round"/>
+      <text x="92" y="119" fill="#77777c" font-size="17" font-weight="600">servicios cerca de mí</text>
+
+      <rect x="26" y="166" width="353" height="144" rx="27" fill="#ffffff" stroke="#e5e5e9"/>
+      <rect x="48" y="190" width="54" height="54" rx="16" fill="url(#orange)"/>
+      <path d="M66 226h18M75 217v18" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <text x="120" y="210" fill="#1d1d1f" font-size="19" font-weight="800">Tu negocio</text>
+      <text x="120" y="238" fill="#6e6e73" font-size="15" font-weight="600">Página web optimizada</text>
+      <rect x="48" y="269" width="272" height="10" rx="5" fill="#e8e9ed"/>
+      <rect x="48" y="288" width="218" height="10" rx="5" fill="#eef0f3"/>
+
+      <rect x="26" y="330" width="188" height="52" rx="26" fill="url(#orange)"/>
+      <text x="58" y="363" fill="#ffffff" font-size="17" font-weight="800">Ver resultado  →</text>
+      <circle cx="346" cy="356" r="26" fill="#f1f2f5"/>
+      <path d="M336 356l7 7 14-16" fill="none" stroke="#ff5a00" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <rect x="78" y="548" width="446" height="72" rx="36" fill="#ffffff" fill-opacity=".76" stroke="#ffffff" filter="url(#softShadow)"/>
+    <text x="112" y="579" fill="#6e6e73" font-size="16" font-weight="800" letter-spacing="1.2">PÁGINA WEB DESDE</text>
+    <text x="112" y="606" fill="#1d1d1f" font-size="23" font-weight="800">Diseño adaptable + WhatsApp</text>
+
+    <text x="78" y="754" fill="#1d1d1f" font-size="108" font-weight="900" letter-spacing="-6">$200.000</text>
+    <text x="522" y="754" fill="#ff5a00" font-size="38" font-weight="900">COP</text>
+
+    <g font-size="19" font-weight="700" fill="#3a3a3c">
+      <circle cx="88" cy="815" r="7" fill="#ff5a00"/><text x="110" y="822">Diseño móvil</text>
+      <circle cx="271" cy="815" r="7" fill="#ff5a00"/><text x="293" y="822">SEO esencial</text>
+      <circle cx="468" cy="815" r="7" fill="#ff5a00"/><text x="490" y="822">Formulario de clientes</text>
+    </g>
+
+    <rect x="78" y="868" width="342" height="78" rx="39" fill="url(#orange)" filter="url(#softShadow)"/>
+    <text x="119" y="917" fill="#ffffff" font-size="23" font-weight="900">COTIZA AHORA  →</text>
+    <text x="451" y="894" fill="#6e6e73" font-size="16" font-weight="700">WhatsApp</text>
+    <text x="451" y="925" fill="#1d1d1f" font-size="25" font-weight="900">302 840 2389</text>
+
+    <text x="78" y="991" fill="#6e6e73" font-size="16" font-weight="700">@crkpublicity</text>
+    <text x="78" y="1024" fill="#929297" font-size="12.5">La visibilidad depende de la indexación, el contenido y las fuentes disponibles.</text>
+  </g>
+</svg>

@@ -1,0 +1,44 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://wiyhambpgiqbnzwrsykd.supabase.co; media-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.mp4
+  Cache-Control: public, max-age=31536000, immutable
+
+/index.html
+  Cache-Control: no-cache
+
+/admin/index.html
+  Cache-Control: no-cache
+
+/pago/index.html
+  Cache-Control: no-cache
+
+/privacidad/index.html
+  Cache-Control: no-cache

@@ -12,7 +12,8 @@ export default defineConfig({
         main: resolve(import.meta.dirname, 'index.html'),
         admin: resolve(import.meta.dirname, 'admin/index.html'),
         payment: resolve(import.meta.dirname, 'pago/index.html'),
-        privacy: resolve(import.meta.dirname, 'privacidad/index.html')
+        privacy: resolve(import.meta.dirname, 'privacidad/index.html'),
+        raffles: resolve(import.meta.dirname, 'sorteos/index.html')
       }
     }
   }

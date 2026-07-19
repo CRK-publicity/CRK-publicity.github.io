@@ -1,18 +1,12 @@
 import { adminClient, allowedOrigin, cleanText, corsHeaders, json, normalizePhone, readBodyLimited, sha256 } from "../_shared/backend.ts";
 
 const MAX_BODY_BYTES = 8_192;
-const PRODUCT = Object.freeze({
-  code: "web_starter",
-  title: "Página web inicial",
-  description: "Landing de una página con diseño responsive, formulario, WhatsApp y SEO local esencial.",
-  amount: 200_000,
-  currency: "COP",
-});
 const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PRODUCT_CODE = /^[a-z0-9]+(?:_[a-z0-9]+)*$/;
 const PRODUCTION_CHECKOUT_HOSTS = new Set(["www.mercadopago.com", "www.mercadopago.com.co"]);
 const SANDBOX_CHECKOUT_HOSTS = new Set(["sandbox.mercadopago.com", "sandbox.mercadopago.com.co"]);
 const ACCEPTANCE = Object.freeze({
-  scope: "web-starter-2026-07-16-v1",
+  scope: "site-checkout-2026-07-17-v1",
   privacy: "privacy-2026-07-16-v1",
 });
 
@@ -66,13 +60,14 @@ Deno.serve(async (request) => {
     if (!payload || Array.isArray(payload) || typeof payload !== "object") return json({ error: "Solicitud inválida" }, 400, cors);
     if (cleanText(payload.website, 200)) return json({ accepted: true }, 202, cors);
 
-    const productCode = cleanText(payload.productCode, 40);
+    const productCode = cleanText(payload.productCode, 80);
+    const serviceId = cleanText(payload.serviceId, 36);
     const clientRequestId = cleanText(payload.clientRequestId, 36);
     const name = cleanText(payload.name, 100);
     const email = cleanText(payload.email, 180).toLowerCase();
     const phone = normalizePhone(String(payload.phone || ""));
 
-    if (productCode !== PRODUCT.code || !UUID_V4.test(clientRequestId) || name.length < 2 || !phone
+    if ((!UUID_V4.test(serviceId) && !PRODUCT_CODE.test(productCode)) || !UUID_V4.test(clientRequestId) || name.length < 2 || !phone
       || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
       || payload.scopeAccepted !== true || payload.privacyAccepted !== true
       || cleanText(payload.scopeVersion, 80) !== ACCEPTANCE.scope
@@ -90,11 +85,15 @@ Deno.serve(async (request) => {
     if (rateResult.error) throw rateResult.error;
     if (rateResult.data !== true) return json({ error: "Espera unos minutos antes de volver a intentarlo." }, 429, cors);
 
+    const serviceReference = UUID_V4.test(serviceId) ? serviceId : productCode;
+
     const orderResult = await client.rpc("create_payment_order", {
       p_public_token: clientRequestId,
       p_name: name,
       p_email: email,
       p_phone: phone,
+      p_service_reference: serviceReference,
+      p_payment_mode: useSandbox ? "test" : "live",
       p_scope_accepted: true,
       p_privacy_accepted: true,
       p_scope_version: ACCEPTANCE.scope,
@@ -104,11 +103,25 @@ Deno.serve(async (request) => {
       if (String(orderResult.error.message || "").includes("payment_identity_conflict")) {
         return json({ error: "Los datos no coinciden con este intento de pago. Inicia uno nuevo.", code: "identity_conflict" }, 409, cors);
       }
+      if (String(orderResult.error.message || "").includes("payment_service_unavailable")) {
+        return json({ error: "Este servicio no está disponible para pago en línea." }, 422, cors);
+      }
+      if (String(orderResult.error.message || "").includes("payment_method_unavailable")) {
+        return json({ error: "El pago está en proceso de activación. Escríbenos por WhatsApp." }, 503, cors);
+      }
       throw orderResult.error;
     }
     const order = Array.isArray(orderResult.data) ? orderResult.data[0] : null;
     if (!order) throw new Error("Order transaction returned invalid data");
     orderId = String(order.order_id || "");
+    const orderProductCode = cleanText(order.product_code, 80);
+    const orderTitle = cleanText(order.title, 160);
+    const orderDescription = cleanText(order.description, 1_000);
+    const orderAmount = Number(order.amount_cop);
+    if (!UUID_V4.test(orderId) || !PRODUCT_CODE.test(orderProductCode) || !orderTitle || !orderDescription
+      || !Number.isSafeInteger(orderAmount) || orderAmount < 1_000 || order.currency !== "COP") {
+      throw new Error("Order transaction returned an invalid product snapshot");
+    }
 
     const existingUrl = trustedCheckoutUrl(order.checkout_url, useSandbox);
     if (order.status === "checkout_ready" && existingUrl) {
@@ -141,12 +154,12 @@ Deno.serve(async (request) => {
 
     const preference = {
       items: [{
-        id: PRODUCT.code,
-        title: PRODUCT.title,
-        description: PRODUCT.description,
+        id: orderProductCode,
+        title: orderTitle,
+        description: orderDescription,
         quantity: 1,
-        currency_id: PRODUCT.currency,
-        unit_price: PRODUCT.amount,
+        currency_id: String(order.currency),
+        unit_price: orderAmount,
       }],
       payer: { email },
       external_reference: String(order.external_reference),
@@ -159,7 +172,8 @@ Deno.serve(async (request) => {
       notification_url: notificationUrl.href,
       metadata: {
         order_token: String(order.order_public_token),
-        product_code: PRODUCT.code,
+        product_code: orderProductCode,
+        service_id: String(order.service_id),
       },
     };
 

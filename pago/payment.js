@@ -13,6 +13,12 @@
   const resultOrder = document.querySelector("#result-order");
   const resultPrimary = document.querySelector("#result-primary");
   const formError = document.querySelector("#payment-error");
+  const productEyebrow = document.querySelector("#product-eyebrow");
+  const productTitle = document.querySelector("#product-title");
+  const productIntro = document.querySelector("#product-intro");
+  const productPrice = document.querySelector("#product-price");
+  const productScope = document.querySelector("#product-scope");
+  const payButtonLabel = document.querySelector("#pay-button-label");
   const backendUrl = import.meta.env.VITE_SUPABASE_URL;
   const publicKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -23,7 +29,7 @@
     "sandbox.mercadopago.com.co"
   ]);
   const acceptanceVersions = Object.freeze({
-    scope: "web-starter-2026-07-16-v1",
+    scope: "site-checkout-2026-07-17-v1",
     privacy: "privacy-2026-07-16-v1"
   });
   const money = new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
@@ -32,7 +38,19 @@
     email: "Ingresa un correo válido.",
     phone: "Ingresa un WhatsApp válido."
   };
+  const defaultProduct = Object.freeze({
+    serviceId: "",
+    productCode: "web_starter",
+    eyebrow: "Paquete web inicial",
+    title: "Tu negocio merece una web clara.",
+    description: "Una landing esencial de una página, basada en una estructura probada y personalizada con tu marca.",
+    amount: 200000,
+    currency: "COP",
+    features: ["Diseño responsive y personalización básica", "Formulario y botón de WhatsApp", "SEO local esencial"]
+  });
   let volatileRequestId = "";
+  let activeProduct = { ...defaultProduct };
+  let requestStorageKey = "crkPaymentRequestId:web_starter";
 
   function createRequestId() {
     if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -45,7 +63,7 @@
 
   function savedRequestId() {
     try {
-      return sessionStorage.getItem("crkPaymentRequestId") || volatileRequestId;
+      return sessionStorage.getItem(requestStorageKey) || volatileRequestId;
     } catch {
       return volatileRequestId;
     }
@@ -54,7 +72,7 @@
   function saveRequestId(value) {
     volatileRequestId = value;
     try {
-      sessionStorage.setItem("crkPaymentRequestId", value);
+      sessionStorage.setItem(requestStorageKey, value);
     } catch {
       // El UUID en memoria sigue protegiendo este intento si el almacenamiento está bloqueado.
     }
@@ -63,7 +81,7 @@
   function clearRequestId() {
     volatileRequestId = "";
     try {
-      sessionStorage.removeItem("crkPaymentRequestId");
+      sessionStorage.removeItem(requestStorageKey);
     } catch {
       // La navegación ya puede continuar sin acceso al almacenamiento.
     }
@@ -90,6 +108,81 @@
       return url.protocol === "https:" && trustedCheckoutHosts.has(url.hostname) && safeAuthority ? url.href : "";
     } catch {
       return "";
+    }
+  }
+
+  function renderProduct(product) {
+    productEyebrow.textContent = product.eyebrow;
+    productTitle.textContent = product.title;
+    productIntro.textContent = product.description;
+    productPrice.replaceChildren(document.createTextNode(money.format(product.amount) + " "), (() => {
+      const currency = document.createElement("small");
+      currency.textContent = product.currency;
+      return currency;
+    })());
+    productScope.replaceChildren();
+    product.features.forEach((feature) => {
+      const item = document.createElement("li");
+      const marker = document.createElement("span");
+      marker.setAttribute("aria-hidden", "true");
+      marker.textContent = "✓";
+      item.append(marker, document.createTextNode(" " + feature));
+      productScope.append(item);
+    });
+    payButtonLabel.textContent = "Pagar " + money.format(product.amount) + " " + product.currency;
+  }
+
+  function usableService(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const cta = value.cta && typeof value.cta === "object" && !Array.isArray(value.cta) ? value.cta : {};
+    const id = String(value.id || "");
+    const code = String(cta.product_code || "");
+    const amount = Number(value.price_cop);
+    const title = String(value.title || "").trim();
+    const description = String(value.description || "").trim();
+    const features = Array.isArray(value.features) ? value.features.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 8) : [];
+    if (!uuidPattern.test(id) || !/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(code) || cta.type !== "checkout"
+      || !Number.isSafeInteger(amount) || amount < 1000 || String(value.currency || "") !== "COP" || !title || !description) return null;
+    return {
+      serviceId: id,
+      productCode: code,
+      eyebrow: "Pago seguro",
+      title,
+      description,
+      amount,
+      currency: "COP",
+      features: features.length ? features : ["Servicio personalizado por CRK Publicity"]
+    };
+  }
+
+  async function loadRequestedService() {
+    const parameters = new URLSearchParams(window.location.search);
+    const requestedId = parameters.get("service") || "";
+    const requestedCode = parameters.get("product") || "";
+    if (!requestedId && !requestedCode) return true;
+    if ((requestedId && !uuidPattern.test(requestedId)) || (requestedCode && !/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(requestedCode)) || !backendUrl || !publicKey) return false;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(backendUrl + "/functions/v1/public-site-config", {
+        method: "GET",
+        headers: { apikey: publicKey },
+        signal: controller.signal
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return false;
+      const services = Array.isArray(data?.snapshot?.services) ? data.snapshot.services : [];
+      const source = services.find((item) => requestedId
+        ? String(item?.id || "") === requestedId
+        : String(item?.cta?.product_code || "") === requestedCode);
+      const service = usableService(source);
+      if (!service) return false;
+      activeProduct = service;
+      return true;
+    } catch {
+      return false;
+    } finally {
+      window.clearTimeout(timeout);
     }
   }
 
@@ -220,7 +313,16 @@
   [scopeConfirmation, privacyConfirmation].forEach((field) => {
     field.addEventListener("change", () => validateConfirmation(field));
   });
-  submitButton.disabled = false;
+  void (async () => {
+    const loaded = await loadRequestedService();
+    if (!loaded) {
+      formError.textContent = "Este servicio ya no está disponible para pago en línea. Escríbenos por WhatsApp para ayudarte.";
+      return;
+    }
+    requestStorageKey = "crkPaymentRequestId:" + (activeProduct.serviceId || activeProduct.productCode);
+    renderProduct(activeProduct);
+    submitButton.disabled = false;
+  })();
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -242,11 +344,12 @@
       saveRequestId(clientRequestId);
     }
     submitButton.disabled = true;
-    submitButton.firstChild.textContent = "Preparando pago… ";
+    payButtonLabel.textContent = "Preparando pago…";
 
     try {
       const response = await postFunction("create-payment", {
-        productCode: "web_starter",
+        productCode: activeProduct.productCode,
+        serviceId: activeProduct.serviceId || undefined,
         clientRequestId,
         name: data.get("name"),
         email: data.get("email"),
@@ -265,7 +368,7 @@
       if (error && typeof error === "object" && error.code === "identity_conflict") clearRequestId();
       formError.textContent = error instanceof Error ? error.message : "No pudimos iniciar el pago.";
       submitButton.disabled = false;
-      submitButton.firstChild.textContent = "Pagar $200.000 COP ";
+      payButtonLabel.textContent = "Pagar " + money.format(activeProduct.amount) + " " + activeProduct.currency;
     }
   });
 })();
