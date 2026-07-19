@@ -6,8 +6,30 @@
   const items = document.querySelector('#quote-items');
   const total = document.querySelector('#quote-total');
   const count = document.querySelector('#cart-count');
+  const storeCount = document.querySelector('#store-cart-count');
   const toast = document.querySelector('#toast');
   const money = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  const CART_STORAGE_KEY = 'crk-publicity:quote-cart:v1';
+
+  function restoreCart() {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+      if (!Array.isArray(saved)) return;
+      saved.slice(0, 12).forEach(([name, price]) => {
+        if (typeof name === 'string' && name.length >= 2 && name.length <= 160 && Number.isFinite(price) && price >= 0 && price <= 1000000000) cart.set(name, price);
+      });
+    } catch { /* Storage is optional: the quote still works for this visit. */ }
+  }
+
+  function persistCart() {
+    try { window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([...cart.entries()])); } catch { /* Storage is optional. */ }
+  }
+
+  function requestNeed(value) {
+    const selected = [...cart.keys()].join(', ');
+    const base = typeof value === 'string' ? value.trim() : '';
+    return selected ? `${base || 'Consulta de tienda'} · SelecciÃ³n: ${selected}`.slice(0, 480) : base;
+  }
 
   function showToast(message) {
     toast.textContent = message;
@@ -18,12 +40,14 @@
   function renderCart() {
     const entries = [...cart.entries()];
     count.textContent = String(entries.length);
+    if (storeCount) storeCount.textContent = String(entries.length);
     if (!entries.length) {
       const empty = document.createElement('p');
       empty.className = 'empty';
       empty.textContent = 'Todavía no agregaste servicios.';
       items.replaceChildren(empty);
       total.textContent = '$0 COP';
+      persistCart();
       return;
     }
     items.replaceChildren(...entries.map(([name, price]) => {
@@ -33,7 +57,7 @@
       const value = document.createElement('small');
       const remove = document.createElement('button');
       label.textContent = name;
-      value.textContent = money.format(price);
+      value.textContent = price > 0 ? money.format(price) : 'A cotizar';
       remove.type = 'button';
       remove.textContent = 'Quitar';
       remove.addEventListener('click', () => { cart.delete(name); renderCart(); });
@@ -41,7 +65,9 @@
       row.append(info, remove);
       return row;
     }));
-    total.textContent = money.format(entries.reduce((sum, [, price]) => sum + price, 0));
+    const pricedTotal = entries.reduce((sum, [, price]) => sum + price, 0);
+    total.textContent = pricedTotal > 0 ? money.format(pricedTotal) : 'A confirmar';
+    persistCart();
   }
 
   function setPanel(open) {
@@ -78,6 +104,30 @@
       button.addEventListener('click', onServiceButtonClick);
     });
   }
+  function addCatalogActions() {
+    document.querySelectorAll('.product-card .product-copy').forEach((copy) => {
+      const title = copy.querySelector('h3');
+      const whatsapp = copy.querySelector('a[href^="https://wa.me/"]');
+      if (!title || !whatsapp || copy.querySelector('.catalog-add')) return;
+      const actions = document.createElement('div');
+      const add = document.createElement('button');
+      const icon = document.createElement('b');
+      actions.className = 'product-actions';
+      add.className = 'catalog-add';
+      add.type = 'button';
+      add.dataset.service = title.textContent.trim();
+      add.dataset.price = '0';
+      add.dataset.addLabel = 'Agregar a cotizaciÃ³n';
+      add.dataset.addedLabel = 'Agregado';
+      icon.textContent = '+';
+      add.append(document.createTextNode('Agregar a cotizaciÃ³n '), icon);
+      whatsapp.classList.add('product-quote-link');
+      actions.append(add, whatsapp);
+      copy.append(actions);
+    });
+  }
+  bindServiceButtons();
+  addCatalogActions();
   bindServiceButtons();
   document.querySelectorAll('[data-open-quote]').forEach((button) => button.addEventListener('click', () => setPanel(true)));
   document.querySelectorAll('[data-close-quote]').forEach((button) => button.addEventListener('click', () => setPanel(false)));
@@ -460,7 +510,7 @@
     success.classList.remove('show', 'failed');
     try {
       if (!backendUrl || !publicKey) {
-        const message = `Hola CRK Publicity, soy ${data.get('name')} de ${data.get('business')}. Necesito: ${data.get('need')}. Mi correo es ${data.get('email')}.`;
+        const message = `Hola CRK Publicity, soy ${data.get('name')} de ${data.get('business')}. Necesito: ${requestNeed(data.get('need'))}. Mi correo es ${data.get('email')}.`;
         window.open(`https://wa.me/573028402389?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
         success.querySelector('b').textContent = 'Continuemos por WhatsApp.';
         success.querySelector('span').textContent = 'Abrimos una conversación con tus datos para atenderte directamente.';
@@ -473,7 +523,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json', apikey: publicKey },
             signal: controller.signal,
-            body: JSON.stringify({ name: data.get('name'), email: data.get('email'), phone: data.get('phone'), business: data.get('business'), need: data.get('need'), consent: consent.checked, website: data.get('website') })
+            body: JSON.stringify({ name: data.get('name'), email: data.get('email'), phone: data.get('phone'), business: data.get('business'), need: requestNeed(data.get('need')), consent: consent.checked, website: data.get('website') })
           });
         } finally {
           window.clearTimeout(timeout);
@@ -601,5 +651,6 @@
     }, { rootMargin: '500px 0px' });
     productSliders.forEach((slider) => sliderObserver.observe(slider));
   } else productSliders.forEach(initProductSlider);
+  restoreCart();
   renderCart();
 })();
