@@ -700,7 +700,7 @@ async function raffleRequest(action, data = {}) { const { data: response, error 
 function renderParticipants() { const body = $("#participants-table"); body.replaceChildren(); const raffles = new Map(raffleAdminState.raffles.map((item) => [item.id, item])); for (const participant of raffleAdminState.participants) { const row = document.createElement("tr"); const raffle = raffles.get(participant.raffle_id); const cells = [participant.full_name, raffle?.title || "—", (participant.numbers || []).map((number) => String(number).padStart(2, "0")).join(", "), participant.payment_status, formatDate(participant.created_at)]; cells.forEach((value) => { const cell = document.createElement("td"); cell.textContent = String(value || "—"); row.append(cell); }); const actions = document.createElement("td"); for (const [label, action] of [["Aprobar", "approve"], ["Rechazar", "reject"], ["Liberar", "release"]]) { const button = document.createElement("button"); button.className = "small-button"; button.type = "button"; button.textContent = label; button.disabled = action === "approve" && participant.payment_status === "approved"; button.addEventListener("click", async () => { try { await raffleRequest("participant_action", { participantId: participant.id, action }); toast("Participante actualizado"); await loadRaffleAdmin(); } catch { toast("No fue posible actualizar la participación"); } }); actions.append(button); } row.append(actions); body.append(row); } if (!raffleAdminState.participants.length) { const row = document.createElement("tr"); const cell = document.createElement("td"); cell.colSpan = 6; cell.textContent = "No hay participantes registrados."; row.append(cell); body.append(row); } }
 async function loadRaffleAdmin() { try { raffleAdminState = await raffleRequest("dashboard"); renderParticipants(); renderRaffleSummary(); } catch { toast("No fue posible cargar los sorteos."); } }
 async function uploadRaffleAdminFile(kind, file) { if (!(file instanceof File) || !file.size) return ""; const body = new FormData(); body.set("kind", kind); body.set("file", file); const { data, error } = await supabase.functions.invoke("raffle-admin-upload", { body }); if (error || !data?.path) throw new Error("upload_failed"); return data.path; }
-$("#raffle-form")?.addEventListener("submit", async (event) => { event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return; const data = new FormData(form); try { const bannerPath = await uploadRaffleAdminFile("banner", data.get("bannerFile")); const prizeImagePath = await uploadRaffleAdminFile("prize", data.get("prizeFile")); const payload = { id: String(data.get("id") || ""), slug: trimText(data.get("slug"), 80), title: trimText(data.get("title"), 140), prizeName: trimText(data.get("prizeName"), 160), description: trimText(data.get("description"), 3000), priceCop: numericValue(data.get("priceCop"), 0), status: String(data.get("status")), maxNumbersPerParticipant: numericValue(data.get("maxNumbersPerParticipant"), 1), reservationMinutes: numericValue(data.get("reservationMinutes"), 20), bannerPath: bannerPath || String(data.get("bannerPath") || ""), prizeImagePath: prizeImagePath || String(data.get("prizeImagePath") || ""), nequiNumber: trimText(data.get("nequiNumber"), 30), paymentInstructions: trimText(data.get("paymentInstructions"), 2000), termsText: trimText(data.get("termsText"), 10000), privacyText: trimText(data.get("privacyText"), 2000) }; await raffleRequest("save_raffle", payload); toast("Sorteo guardado"); form.reset(); await loadRaffleAdmin(); } catch { toast("Revisa los datos, imágenes y permisos."); } });
+$("#raffle-form")?.addEventListener("submit", async (event) => { event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return; const data = new FormData(form); try { const bannerPath = await uploadRaffleAdminFile("banner", data.get("bannerFile")); const prizeImagePath = await uploadRaffleAdminFile("prize", data.get("prizeFile")); const payload = { id: String(data.get("id") || ""), slug: trimText(data.get("slug"), 80), title: trimText(data.get("title"), 140), prizeName: trimText(data.get("prizeName"), 160), description: trimText(data.get("description"), 3000), priceCop: numericValue(data.get("priceCop"), 0), status: String(data.get("status")), numberCount: numericValue(data.get("numberCount"), 100), maxNumbersPerParticipant: numericValue(data.get("maxNumbersPerParticipant"), 1), reservationMinutes: numericValue(data.get("reservationMinutes"), 20), bannerPath: bannerPath || String(data.get("bannerPath") || ""), prizeImagePath: prizeImagePath || String(data.get("prizeImagePath") || ""), nequiNumber: trimText(data.get("nequiNumber"), 30), paymentInstructions: trimText(data.get("paymentInstructions"), 2000), termsText: trimText(data.get("termsText"), 10000), privacyText: trimText(data.get("privacyText"), 2000) }; await raffleRequest("save_raffle", payload); toast("Sorteo guardado"); form.reset(); await loadRaffleAdmin(); } catch { toast("Revisa los datos, imágenes y permisos."); } });
 $("#raffle-refresh")?.addEventListener("click", loadRaffleAdmin);
 
 function raffleSlug(value) {
@@ -724,15 +724,15 @@ $("#raffle-quick-form")?.addEventListener("submit", async (event) => {
   const prizeName = trimText(values.get("prizeName"), 160);
   const button = form.querySelector("button[type='submit']");
   if (!title || !prizeName || numericValue(values.get("priceCop"), -1) < 0 || !button) {
-    setRaffleStatus("Indica el nombre, el premio y un valor vÃ¡lido.", "error");
+    setRaffleStatus("Indica el nombre, el premio y un valor válido.", "error");
     return;
   }
-  await withBusy(button, "Guardandoâ€¦", async () => {
+  await withBusy(button, "Guardando…", async () => {
     try {
-      setRaffleStatus("Subiendo imÃ¡genes y creando el sorteoâ€¦");
+      setRaffleStatus("Subiendo imágenes y creando el sorteo…");
       const bannerPath = await uploadRaffleAdminFile("banner", values.get("bannerFile"));
       const prizeImagePath = await uploadRaffleAdminFile("prize", values.get("prizeFile"));
-      const description = trimText(values.get("description"), 3000) || `Participa por ${prizeName}. Selecciona tu nÃºmero, realiza el pago y adjunta el comprobante.`;
+      const description = trimText(values.get("description"), 3000) || `Participa por ${prizeName}. Selecciona tu número, realiza el pago y adjunta el comprobante.`;
       const payload = {
         id: trimText(values.get("id"), 80),
         title,
@@ -741,6 +741,7 @@ $("#raffle-quick-form")?.addEventListener("submit", async (event) => {
         slug: trimText(values.get("slug"), 80) || raffleSlug(title),
         priceCop: numericValue(values.get("priceCop"), 0),
         status: String(values.get("status") || "draft"),
+        numberCount: numericValue(values.get("numberCount"), 100),
         maxNumbersPerParticipant: numericValue(values.get("maxNumbersPerParticipant"), 1),
         reservationMinutes: numericValue(values.get("reservationMinutes"), 20),
         bannerPath: bannerPath || trimText(values.get("bannerPath"), 500),
@@ -757,7 +758,7 @@ $("#raffle-quick-form")?.addEventListener("submit", async (event) => {
       await loadRaffleAdmin();
     } catch (error) {
       const message = error instanceof Error ? error.message : "No fue posible crear el sorteo";
-      const friendly = message.includes("duplicate") || message.includes("unique") ? "Ese identificador ya existe. Cambia el nombre o usa uno personalizado." : message.includes("raffle-admin") ? "No se pudo conectar con el servidor. Confirma que la verificaciÃ³n en dos pasos estÃ¡ completa." : message;
+      const friendly = message.includes("duplicate") || message.includes("unique") ? "Ese identificador ya existe. Cambia el nombre o usa uno personalizado." : message.includes("raffle-admin") ? "No se pudo conectar con el servidor. Confirma que la verificación en dos pasos está completa." : message;
       setRaffleStatus(friendly, "error");
     }
   });
@@ -784,10 +785,19 @@ resetPaymentMethodForm();
 const quickRaffleForm = $("#raffle-quick-form");
 const raffleTools = document.querySelector(".raffle-admin-tools");
 if (quickRaffleForm && raffleTools) raffleTools.before(quickRaffleForm);
+for (const form of [$("#raffle-form"), quickRaffleForm]) {
+  if (!form || form.elements.numberCount) continue;
+  const input = document.createElement("input");
+  input.name = "numberCount"; input.type = "number"; input.min = "1"; input.max = "1000"; input.value = "100"; input.required = true;
+  const label = document.createElement("label");
+  label.append("Cantidad total de números", input);
+  const anchor = form.elements.maxNumbersPerParticipant?.closest("label") || form.elements.maxNumbersPerParticipant;
+  anchor?.before(label);
+}
 const catalogTab = $("#site-tab-services");
-if (catalogTab) catalogTab.textContent = "CatÃ¡logo";
+if (catalogTab) catalogTab.textContent = "Catálogo";
 const catalogHeading = $("#site-panel-services h3");
-if (catalogHeading) catalogHeading.textContent = "CatÃ¡logo de productos y servicios";
+if (catalogHeading) catalogHeading.textContent = "Catálogo de productos y servicios";
 const catalogDescription = $("#site-panel-services .site-panel-heading p");
 if (catalogDescription) catalogDescription.textContent = "Crea productos o servicios, define su precio y conéctalos con Mercado Pago desde un solo panel.";
 boot();

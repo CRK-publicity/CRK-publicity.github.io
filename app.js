@@ -412,22 +412,48 @@
       if (status) status.textContent = 'Contenido actualizado.';
     }
   }
+  function mapFastApiHomeContent(payload) {
+    if (!isRecord(payload) || !isRecord(payload.hero) || !isRecord(payload.featured) || !isRecord(payload.promise)) return null;
+    const hero = payload.hero;
+    const featured = payload.featured;
+    const promise = payload.promise;
+    const primary = isRecord(hero.primary) ? hero.primary : {};
+    const secondary = isRecord(hero.secondary) ? hero.secondary : {};
+    const steps = Array.isArray(promise.steps) ? promise.steps.slice(0, 3) : [];
+    const content = {
+      hero: {
+        title: cleanText(hero.title, 160), highlight: cleanText(hero.accent, 160), description: cleanText(hero.description, 500),
+        primaryLabel: cleanText(primary.label, 60), primaryUrl: safeSiteLink(primary.href), secondaryLabel: cleanText(secondary.label, 60), secondaryUrl: safeSiteLink(secondary.href)
+      },
+      services: { title: cleanText(featured.title, 160) },
+      process: { title: cleanText(promise.title, 160), description: cleanText(promise.description, 600) }
+    };
+    steps.forEach((step, index) => {
+      if (!isRecord(step)) return;
+      content.process[`step${index + 1}Number`] = cleanText(step.number, 4);
+      content.process[`step${index + 1}Title`] = cleanText(step.title, 80);
+      content.process[`step${index + 1}Description`] = cleanText(step.description, 240);
+    });
+    return { content, services: [], gallery: [] };
+  }
   async function hydratePublishedSiteConfig() {
-    if (!backendUrl || !publicKey) return;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 5500);
     try {
+      const fastApiResponse = await fetch('/api/cms/home', { headers: { Accept: 'application/json' }, cache: 'no-store', signal: controller.signal });
+      if (fastApiResponse.ok) {
+        const fastApiConfig = mapFastApiHomeContent(await fastApiResponse.json());
+        if (fastApiConfig) { applyPublishedSiteConfig(fastApiConfig); return; }
+      }
+      if (!backendUrl || !publicKey) return;
       const response = await fetch(`${backendUrl}/functions/v1/public-site-config`, {
-        method: 'GET',
-        headers: { Accept: 'application/json', apikey: publicKey },
-        cache: 'no-store',
-        signal: controller.signal
+        method: 'GET', headers: { Accept: 'application/json', apikey: publicKey }, cache: 'no-store', signal: controller.signal
       });
       if (!response.ok) return;
       const config = parsePublicSiteConfig(await response.json());
       if (config) applyPublishedSiteConfig(config);
     } catch {
-      // La página estática sigue siendo la fuente de respaldo si el CMS no está disponible.
+      // El HTML estático permanece como respaldo si FastAPI y Supabase no responden.
     } finally {
       window.clearTimeout(timeout);
     }

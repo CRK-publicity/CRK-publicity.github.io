@@ -34,7 +34,7 @@ function publicRaffle(row: Data, numbers: Data[], imageUrls: Map<string, string>
   return {
     id: String(row.id), slug: cleanText(row.slug, 80), title: cleanText(row.title, 140), description: cleanText(row.description, 3000),
     legalType: cleanText(row.legal_type, 32), status, prizeName: cleanText(row.prize_name, 160), priceCop: Number(row.price_cop),
-    startsAt: row.starts_at, closesAt: row.closes_at, drawAt: row.draw_at, maxNumbersPerParticipant: Number(row.max_numbers_per_participant),
+    startsAt: row.starts_at, closesAt: row.closes_at, drawAt: row.draw_at, maxNumbersPerParticipant: Number(row.max_numbers_per_participant), numberCount: Number(row.number_count),
     termsText: cleanText(row.terms_text, 10000), privacyText: cleanText(row.privacy_text, 2000), privacyVersion: cleanText(row.privacy_version, 40),
     paymentInstructions: cleanText(row.payment_instructions, 2000), nequiNumber: cleanText(row.nequi_number, 30),
     bannerUrl: bannerPath ? imageUrls.get(bannerPath) || "" : "", prizeImageUrl: prizePath ? imageUrls.get(prizePath) || "" : "",
@@ -48,7 +48,7 @@ function publicRaffle(row: Data, numbers: Data[], imageUrls: Map<string, string>
 async function listRaffles() {
   const client = adminClient();
   await client.rpc("release_expired_raffle_reservations", { p_raffle_id: null });
-  const raffles = await client.from("raffles").select("id,slug,title,description,legal_type,status,banner_path,prize_image_path,prize_name,price_cop,starts_at,closes_at,draw_at,max_numbers_per_participant,terms_text,privacy_text,privacy_version,payment_instructions,nequi_number,winner_published,winner_number,archived_at").in("status", ["upcoming", "active", "sold_out", "finished"]).is("archived_at", null).order("starts_at", { ascending: false });
+  const raffles = await client.from("raffles").select("id,slug,title,description,legal_type,status,banner_path,prize_image_path,prize_name,price_cop,starts_at,closes_at,draw_at,max_numbers_per_participant,number_count,terms_text,privacy_text,privacy_version,payment_instructions,nequi_number,winner_published,winner_number,archived_at").in("status", ["upcoming", "active", "sold_out", "finished"]).is("archived_at", null).order("starts_at", { ascending: false });
   if (raffles.error) throw raffles.error;
   const ids = (raffles.data || []).map((item) => item.id);
   const numbers = ids.length ? await client.from("raffle_numbers").select("raffle_id,number,state").in("raffle_id", ids) : { data: [], error: null };
@@ -62,7 +62,7 @@ async function listRaffles() {
 
 async function reserve(request: Request, data: Data) {
   const raffleId = String(data.raffleId || "");
-  const numbers = Array.isArray(data.numbers) ? data.numbers.map((item) => integer(item, 0, 99)).filter((item): item is number => item !== null) : [];
+  const numbers = Array.isArray(data.numbers) ? data.numbers.map((item) => integer(item, 0, 999)).filter((item): item is number => item !== null) : [];
   if (!UUID.test(raffleId) || !numbers.length || numbers.length !== new Set(numbers).size || data.website) return json({ error: "La selección no es válida" }, 422);
   const client = adminClient(); const fingerprint = await clientFingerprint(request);
   if (await limited(client, fingerprint, "reserve")) return json({ error: "Intenta nuevamente más tarde" }, 429);
