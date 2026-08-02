@@ -34,6 +34,10 @@
 /index.html
   Cache-Control: no-cache
 
+/google0d3c6c3144f2d1e5.html
+  Cache-Control: no-store, max-age=0
+  Content-Type: text/html; charset=utf-8
+
 /admin/index.html
   Cache-Control: no-cache
 
