@@ -1,8 +1,17 @@
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /admin/
+Disallow: /pago/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /admin/
+Disallow: /pago/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /pago/
 
 # Search visibility is independent from model-training access.
 User-agent: GPTBot
