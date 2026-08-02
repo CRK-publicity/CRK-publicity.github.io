@@ -8,9 +8,9 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: https://wiyhambpgiqbnzwrsykd.supabase.co; font-src 'self'; connect-src 'self' https://wiyhambpgiqbnzwrsykd.supabase.co; frame-src 'none'; form-action 'self'; upgrade-insecure-requests">
   <meta name="referrer" content="no-referrer">
   <title>CRK CRM · Panel privado</title>
-  <script type="module" crossorigin src="../assets/admin-y9CFtQoj.js"></script>
+  <script type="module" crossorigin src="../assets/admin-BFWtjeEd.js"></script>
   <link rel="modulepreload" crossorigin href="../assets/modulepreload-polyfill-Dezn_h7o.js">
-  <link rel="stylesheet" crossorigin href="../assets/admin-DP1d_sJG.css">
+  <link rel="stylesheet" crossorigin href="../assets/admin-SEZQzsY9.css">
 </head>
 <body>
   <a class="skip" href="#workspace">Saltar al panel</a>
@@ -19,10 +19,10 @@
     <section id="setup" class="center-card" hidden><span class="eyebrow">Configuración pendiente</span><h1>Conecta el backend para activar tu CRM.</h1><p>La interfaz está lista. Añade la URL y la clave pública de Supabase al archivo de entorno y vuelve a construir el sitio.</p><a href="https://github.com/IWANDEZU/crkpublicity/blob/main/BACKEND_SETUP.md" target="_blank" rel="noopener noreferrer">Ver guía de activación</a></section>
     <section id="login" class="login-shell" hidden>
       <div><span class="eyebrow">Panel privado</span><h1>Tus clientes,<br><em>en un solo lugar.</em></h1><p>Administra contactos, mensajes y oportunidades de CRK Publicity.</p></div>
-      <div class="glass"><form id="login-form"><h2>Iniciar sesión</h2><label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" minlength="12" required></label><button class="primary" type="submit">Entrar al CRM</button><p id="login-error" class="error" role="alert"></p></form><form id="activation-form" hidden><span class="eyebrow">Activar cuenta</span><h2>Crea tu contraseña</h2><p class="activation-copy">Usa al menos 12 caracteres y no repitas una contraseña de otras cuentas.</p><label>Nueva contraseña<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label>Confirmar contraseña<input name="confirmation" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary" type="submit">Guardar y entrar</button><p id="activation-error" class="error" role="alert"></p></form><form id="mfa-form" hidden><span class="eyebrow">Verificación en dos pasos</span><h2 id="mfa-title">Protege tu cuenta</h2><p id="mfa-copy" class="activation-copy">Escanea el código QR con tu aplicación de autenticación.</p><div id="mfa-enrollment" class="mfa-enrollment"><img id="mfa-qr" width="220" height="220" alt="Código QR para configurar la autenticación en dos pasos"><small>El código cambia cada 30 segundos.</small></div><label>Código de 6 dígitos<input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label><button class="primary" type="submit">Verificar y entrar</button><p id="mfa-error" class="error" role="alert"></p></form></div>
+      <div class="glass"><form id="login-form"><h2>Iniciar sesión</h2><label>Correo electrónico<input name="email" type="email" autocomplete="email" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" minlength="12" required></label><button class="primary" type="submit">Entrar al CRM</button><p id="login-error" class="error" role="alert"></p></form><form id="activation-form" hidden><span class="eyebrow">Activar cuenta</span><h2>Crea tu contraseña</h2><p class="activation-copy">Usa al menos 12 caracteres y no repitas una contraseña de otras cuentas.</p><label>Nueva contraseña<input name="password" type="password" autocomplete="new-password" minlength="12" required></label><label>Confirmar contraseña<input name="confirmation" type="password" autocomplete="new-password" minlength="12" required></label><button class="primary" type="submit">Guardar y entrar</button><p id="activation-error" class="error" role="alert"></p></form><form id="mfa-form" hidden><span class="eyebrow">Verificación en dos pasos</span><h2 id="mfa-title">Protege tu cuenta</h2><p id="mfa-copy" class="activation-copy">Escanea el código QR con tu aplicación de autenticación.</p><div id="mfa-enrollment" class="mfa-enrollment"><img id="mfa-qr" width="220" height="220" alt="Código QR para configurar la autenticación en dos pasos"><small>El código cambia cada 30 segundos.</small><details><summary>¿No puedes escanear el QR?</summary><p>Agrega una cuenta TOTP manual en tu aplicación e introduce esta clave:</p><code id="mfa-secret"></code></details></div><button id="mfa-reset" class="ghost" type="button" hidden>Generar un código QR nuevo</button><label>Código de 6 dígitos<input name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required></label><button class="primary" type="submit">Verificar y entrar</button><p id="mfa-error" class="error" role="alert"></p></form></div>
     </section>
     <section id="workspace" class="workspace" hidden>
-      <aside class="sidebar"><nav><button class="nav-item active" data-view="inbox"><span>◉</span>Bandeja</button><button class="nav-item" data-view="clients"><span>◎</span>Clientes</button><button class="nav-item" data-view="participants" data-owner-only hidden><span>◈</span>Participantes</button><button class="nav-item" data-view="site" data-owner-only hidden><span>◈</span>Sitio web</button></nav><div class="security-note"><b>Datos protegidos</b><span>Acceso por usuario y permisos.</span></div></aside>
+      <aside class="sidebar"><nav aria-label="Navegación principal"><span class="nav-section-label">Atención</span><button class="nav-item active" data-view="inbox"><span>◉</span>Bandeja</button><button class="nav-item" data-view="clients"><span>◎</span>Clientes</button><span class="nav-section-label" data-owner-only hidden>Administración</span><button class="nav-item" data-view="participants" data-owner-only hidden><span>◈</span>Sorteos y ventas</button><button class="nav-item" data-view="site" data-owner-only hidden><span>◇</span>Editor del sitio</button></nav><div class="security-note"><b>Datos protegidos</b><span>Acceso por usuario y permisos.</span></div></aside>
       <div class="content">
         <header class="page-head"><div><span class="eyebrow">CRK Publicity</span><h1 id="page-title">Bandeja de atención</h1></div><button id="refresh" class="ghost" type="button">Actualizar</button></header>
         <div class="metrics"><article><span>Clientes</span><strong id="metric-clients">—</strong></article><article><span>Por atender</span><strong id="metric-waiting">—</strong></article><article><span>Oportunidades</span><strong id="metric-qualified">—</strong></article><article><span>Visitas</span><strong id="metric-visits">—</strong></article><article><span>Clics</span><strong id="metric-clicks">—</strong></article></div>
@@ -43,19 +43,68 @@
 <div id="message-list" class="message-list" aria-live="polite"></div><p id="channel-note" class="channel-note" hidden>Esta solicitud llegó desde la web. Puedes contactar al cliente con el botón de WhatsApp de su ficha.</p><form id="reply-form" class="reply-form"><label class="sr-only" for="reply">Respuesta</label><textarea id="reply" maxlength="4000" placeholder="Escribe una respuesta…" required></textarea><button type="submit">Enviar</button></form><p id="reply-error" class="error" role="alert"></p></div></div>
         </section>
         <section id="clients-view" class="panel" hidden><div class="panel-title"><div><h2>Clientes registrados</h2><p>Actualiza su etapa comercial sin perder el historial.</p></div><input id="client-search" type="search" placeholder="Buscar cliente…" aria-label="Buscar cliente"></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Contacto</th><th>Origen</th><th>Etapa</th><th>Última actividad</th></tr></thead><tbody id="client-table"></tbody></table></div></section>
-        <section id="participants-view" class="panel" hidden>
-  <div class="panel-title"><div><h2>Participantes de sorteos</h2><p>Valida pagos manualmente y conserva el historial auditable.</p></div><button id="raffle-refresh" class="ghost" type="button">Actualizar</button></div>
-  <div class="raffle-admin-tools"><form id="raffle-form" class="raffle-form"><input name="id" type="hidden"><input name="slug" placeholder="identificador-del-sorteo" required><input name="title" placeholder="Título del sorteo" required><input name="prizeName" placeholder="Premio" required><textarea name="description" placeholder="Descripción" required></textarea><label>Banner<input name="bannerFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Imagen del premio<input name="prizeFile" type="file" accept="image/jpeg,image/png,image/webp"></label><input name="bannerPath" type="hidden"><input name="prizeImagePath" type="hidden"><input name="priceCop" type="number" min="0" placeholder="Valor por número" required><select name="status"><option value="draft">Borrador</option><option value="upcoming">Próximamente</option><option value="active">Activo</option><option value="sold_out">Agotado</option><option value="finished">Finalizado</option></select><input name="maxNumbersPerParticipant" type="number" min="1" max="100" value="1" required><input name="reservationMinutes" type="number" min="5" max="120" value="20" required><input name="nequiNumber" placeholder="Número Nequi"><textarea name="paymentInstructions" placeholder="Instrucciones de pago"></textarea><textarea name="termsText" placeholder="Términos y condiciones"></textarea><textarea name="privacyText" placeholder="Texto de autorización de datos"></textarea><button class="primary compact" type="submit">Guardar sorteo</button></form><div class="table-wrap"><table><thead><tr><th>Participante</th><th>Sorteo</th><th>Números</th><th>Pago</th><th>Registro</th><th>Acciones</th></tr></thead><tbody id="participants-table"></tbody></table></div></div>
-<form id="raffle-quick-form" class="raffle-form raffle-quick-form" novalidate>
-  <input name="id" type="hidden"><input name="bannerPath" type="hidden"><input name="prizeImagePath" type="hidden">
-  <div><span class="eyebrow">Creación rápida</span><h3>Publica un sorteo en un minuto</h3><p>Solo necesitas nombre, premio y precio. Las reglas restantes usan valores seguros por defecto.</p></div>
-  <label>Nombre del sorteo<input name="title" placeholder="Ej. Sorteo CRK de agosto" maxlength="140" required></label>
-  <label>Premio<input name="prizeName" placeholder="Ej. Bono de $500.000 COP" maxlength="160" required></label>
-  <label>Valor por número (COP)<input name="priceCop" type="number" min="0" max="999999999" inputmode="numeric" placeholder="5000" required></label>
-  <label>Estado<select name="status"><option value="draft">Guardar como borrador</option><option value="active">Publicar y vender</option><option value="upcoming">Próximamente</option></select></label>
-  <details class="raffle-advanced"><summary>Personalizar imágenes, reglas y pago</summary><div class="raffle-advanced-grid"><label>Descripción<textarea name="description" maxlength="3000" placeholder="Detalles para tus clientes"></textarea></label><label>Banner<input name="bannerFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Imagen del premio<input name="prizeFile" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Identificador web<input name="slug" maxlength="80" placeholder="Se crea automáticamente"></label><label>Máximo de números por persona<input name="maxNumbersPerParticipant" type="number" min="1" max="100" value="1"></label><label>Reserva en minutos<input name="reservationMinutes" type="number" min="5" max="120" value="20"></label><label>Nequi<input name="nequiNumber" maxlength="30" placeholder="300 000 0000"></label><label>Instrucciones de pago<textarea name="paymentInstructions" maxlength="2000" placeholder="Transfiere y adjunta el comprobante."></textarea></label><label>Términos<textarea name="termsText" maxlength="10000" placeholder="Términos del sorteo."></textarea></label><label>Autorización de datos<textarea name="privacyText" maxlength="2000" placeholder="Autorizo el tratamiento de mis datos."></textarea></label></div></details>
-  <p id="raffle-status" class="site-status" role="status" aria-live="polite"></p><button class="primary compact" type="submit">Crear sorteo</button>
-</form></section><section id="site-view" class="site-view" hidden aria-labelledby="site-view-title">
+        <section id="participants-view" class="raffle-workspace" hidden>
+          <header class="panel raffle-workspace-head">
+            <div><span class="eyebrow">Control total</span><h2>Sorteos y ventas</h2><p>Edita el sorteo y comprueba exactamente cómo lo verá el cliente.</p></div>
+            <div class="raffle-head-actions"><a class="ghost" href="../sorteos/" target="_blank" rel="noopener">Ver página pública</a><button id="raffle-new" class="ghost" type="button">Nuevo sorteo</button><button id="raffle-refresh-v2" class="ghost" type="button">Actualizar</button></div>
+          </header>
+          <div class="raffle-editor-layout">
+            <aside class="panel raffle-library" aria-label="Sorteos creados">
+              <button id="raffle-library-toggle" class="raffle-library-toggle" type="button" aria-expanded="true" aria-controls="raffle-editor-list">
+                <span>Mis sorteos</span><span class="raffle-library-meta"><b id="raffle-count">0</b><i aria-hidden="true">⌄</i></span>
+              </button>
+              <div id="raffle-editor-list" class="raffle-editor-list" aria-live="polite"></div>
+            </aside>
+            <div class="raffle-editor-stage">
+              <form id="raffle-editor-form" class="panel raffle-editor-form" novalidate>
+                <input name="id" type="hidden"><input name="bannerPath" type="hidden"><input name="prizeImagePath" type="hidden">
+                <div class="raffle-form-heading"><div><span class="eyebrow">Editor</span><h3 id="raffle-editor-title">Nuevo sorteo</h3></div><span id="raffle-editor-mode" class="secure-chip">Borrador nuevo</span></div>
+                <div class="form-grid">
+                  <label>Nombre del sorteo<input name="title" maxlength="140" placeholder="Ej. Sorteo CRK de agosto" required></label>
+                  <label>Premio<input name="prizeName" maxlength="160" placeholder="Ej. Bono de $500.000 COP" required></label>
+                  <label>Precio por número (COP)<input name="priceCop" type="number" min="0" max="999999999" step="1" inputmode="numeric" value="5000" required></label>
+                </div>
+                <label>Descripción<textarea name="description" maxlength="3000" placeholder="Explica el premio y cómo participar." required></textarea></label>
+                <div class="form-grid raffle-control-grid">
+                  <label>Estado<select name="status"><option value="draft">Borrador privado</option><option value="upcoming">Próximamente</option><option value="active">Publicado y disponible</option><option value="sold_out">Agotado</option><option value="finished">Finalizado</option></select></label>
+                  <label>Cantidad total de números<input name="numberCount" id="raffle-number-count" type="number" min="1" max="1000" value="100" required></label>
+                  <label>Máximo por participante<input name="maxNumbersPerParticipant" type="number" min="1" max="100" value="1" required></label>
+                </div>
+                <label class="number-range-label">Tamaño de la malla: <strong id="raffle-number-count-label">100 números</strong><input id="raffle-number-range" type="range" min="1" max="1000" value="100"></label>
+                <div class="form-grid raffle-media-fields">
+                  <label>Foto principal del premio<input name="prizeFile" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG o WebP; máximo 5 MB.</small></label>
+                  <label>Banner adicional<input name="bannerFile" type="file" accept="image/jpeg,image/png,image/webp"><small>Se conserva la imagen actual si no eliges otra.</small></label>
+                  <label>Identificador web<input name="slug" maxlength="80" placeholder="Se genera automáticamente"></label>
+                </div>
+                <details class="raffle-advanced"><summary>Fechas, pago y condiciones</summary><div class="raffle-advanced-grid">
+                  <div class="form-grid"><label>Inicio<input name="startsAt" type="datetime-local"></label><label>Cierre<input name="closesAt" type="datetime-local"></label><label>Fecha del sorteo<input name="drawAt" type="datetime-local"></label></div>
+                  <div class="form-grid"><label>Reserva en minutos<input name="reservationMinutes" type="number" min="5" max="120" value="20"></label><label>Número Nequi<input name="nequiNumber" maxlength="30" placeholder="302 840 2389"></label><label>Tipo legal<select name="legalType"><option value="raffle">Rifa</option><option value="promotional_draw">Sorteo promocional</option><option value="participation_sale">Venta de participación</option><option value="voluntary_donation">Aporte voluntario</option></select></label></div>
+                  <label>Instrucciones de pago<textarea name="paymentInstructions" maxlength="2000" placeholder="Transfiere y adjunta el comprobante."></textarea></label>
+                  <label>Términos y condiciones<textarea name="termsText" maxlength="10000" placeholder="Condiciones del sorteo."></textarea></label>
+                  <label>Autorización de datos<textarea name="privacyText" maxlength="2000" placeholder="Autorizo el tratamiento de mis datos."></textarea></label>
+                </div></details>
+                <div class="form-actions raffle-save-actions"><p id="raffle-status-v2" class="site-status" role="status" aria-live="polite">Los cambios aparecen en la vista previa antes de guardarlos.</p><div><button id="raffle-archive" class="ghost danger-button" type="button" hidden>Eliminar sorteo</button><button id="raffle-reset" class="ghost" type="button">Descartar cambios</button><button class="primary compact" type="submit">Guardar sorteo</button></div></div>
+              </form>
+              <section class="panel raffle-preview-panel" aria-labelledby="raffle-preview-title">
+                <div class="raffle-preview-heading"><div><span class="eyebrow">Vista pública en tiempo real</span><h3 id="raffle-preview-title">Así lo verá tu cliente</h3></div><span id="raffle-preview-sync" class="secure-chip">Sin guardar</span></div>
+                <article id="raffle-preview-card" class="raffle-public-card">
+                  <div id="raffle-preview-image" class="raffle-public-image"><span>Agrega la foto del premio</span></div>
+                  <div class="raffle-public-copy"><span id="raffle-preview-status" class="raffle-public-status">Borrador</span><h2 id="raffle-preview-name">Nombre del sorteo</h2><p id="raffle-preview-description">La descripción aparecerá aquí.</p><div class="raffle-public-stats"><span><b id="raffle-preview-price">$0</b>por número</span><span><b id="raffle-preview-available">100</b>disponibles</span><span><b id="raffle-preview-participants">0</b>participantes</span></div></div>
+                </article>
+                <div class="raffle-grid-heading"><div><h4>Malla de números</h4><p>Haz clic en cualquier número para consultar su estado. Solo los disponibles o bloqueados permiten acciones administrativas.</p></div><span id="raffle-grid-summary">0 seleccionados</span></div>
+                <div class="raffle-admin-number-legend" aria-label="Estados de la malla"><span class="available">Disponible</span><span class="reserved">Reservado</span><span class="pending_validation">Por validar</span><span class="paid">Pagado</span><span class="blocked">Bloqueado</span></div>
+                <div id="raffle-number-preview" class="raffle-public-number-grid" aria-label="Vista previa de números"></div>
+                <aside id="raffle-number-inspector" class="raffle-number-inspector" aria-live="polite"><div><small>DETALLE DEL NÚMERO</small><strong>Selecciona una casilla</strong><span>Consulta aquí si está disponible y quién registró la participación.</span></div><a id="raffle-number-whatsapp" class="ghost" href="#" target="_blank" rel="noopener" hidden>Abrir WhatsApp</a></aside>
+                <div class="raffle-number-actions"><button id="raffle-block-numbers" class="ghost" type="button" disabled>Bloquear seleccionados</button><button id="raffle-release-numbers" class="ghost" type="button" disabled>Habilitar seleccionados</button></div>
+              </section>
+            </div>
+          </div>
+          <section class="panel raffle-participants-ledger">
+            <div class="panel-title"><div><h3>Participantes y pagos</h3><p>Aprueba, rechaza o libera participaciones conservando la auditoría.</p></div></div>
+            <div class="table-wrap"><table><thead><tr><th>Participante</th><th>Sorteo</th><th>Números</th><th>Pago</th><th>Registro</th><th>Acciones</th></tr></thead><tbody id="participants-table-v2"></tbody></table></div>
+          </section>
+        </section>
+        <section id="site-view" class="site-view" hidden aria-labelledby="site-view-title">
           <header class="site-intro">
             <div>
               <span class="eyebrow">Editor protegido</span>
@@ -64,13 +113,14 @@
             </div>
             <div class="publication-pill"><span>Estado público</span><strong id="publication-state">Sin publicar</strong></div>
           </header>
-          <p id="site-admin-status" class="site-status" role="status" aria-live="polite">Cargando la configuración del sitio…</p>
+          <div class="site-status-row"><p id="site-admin-status" class="site-status" role="status" aria-live="polite">Cargando la configuración del sitio…</p><button id="site-retry" class="ghost" type="button">Reintentar conexión</button></div>
           <div class="site-tabs" role="tablist" aria-label="Configuración del sitio">
-            <button type="button" class="site-tab active" id="site-tab-page" data-site-tab="page" role="tab" aria-selected="true" aria-controls="site-panel-page">Página</button>
-            <button type="button" class="site-tab" id="site-tab-services" data-site-tab="services" role="tab" aria-selected="false" aria-controls="site-panel-services">Servicios</button>
-            <button type="button" class="site-tab" id="site-tab-gallery" data-site-tab="gallery" role="tab" aria-selected="false" aria-controls="site-panel-gallery">Fotos</button>
-            <button type="button" class="site-tab" id="site-tab-payments" data-site-tab="payments" role="tab" aria-selected="false" aria-controls="site-panel-payments">Medios de pago</button>
-            <button type="button" class="site-tab" id="site-tab-publication" data-site-tab="publication" role="tab" aria-selected="false" aria-controls="site-panel-publication">Publicación</button>
+            <button type="button" class="site-tab active" id="site-tab-page" data-site-tab="page" role="tab" aria-selected="true" aria-controls="site-panel-page">Contenido</button>
+            <button type="button" class="site-tab" id="site-tab-layout" data-site-tab="layout" role="tab" aria-selected="false" aria-controls="site-panel-layout">Secciones</button>
+            <button type="button" class="site-tab" id="site-tab-services" data-site-tab="services" role="tab" aria-selected="false" aria-controls="site-panel-services">Servicios y ofertas</button>
+            <button type="button" class="site-tab" id="site-tab-gallery" data-site-tab="gallery" role="tab" aria-selected="false" aria-controls="site-panel-gallery">Galería</button>
+            <button type="button" class="site-tab" id="site-tab-payments" data-site-tab="payments" role="tab" aria-selected="false" aria-controls="site-panel-payments">Pagos</button>
+            <button type="button" class="site-tab" id="site-tab-publication" data-site-tab="publication" role="tab" aria-selected="false" aria-controls="site-panel-publication">Revisar y publicar</button>
           </div>
 
           <section id="site-panel-page" class="site-panel" data-site-panel="page" role="tabpanel" aria-labelledby="site-tab-page">
@@ -95,6 +145,44 @@
               <label>Descripción de contacto<textarea name="contactDescription" maxlength="420" rows="2" required placeholder="Respondemos en un día hábil. Sin presión y sin compromisos."></textarea></label>
               <div class="form-actions"><p>Las direcciones solo aceptan enlaces seguros (https) o anclas internas.</p><button class="primary compact" type="submit">Guardar contenido</button></div>
             </form>
+            <form id="site-copy-form" class="editor-form site-copy-form" novalidate>
+              <div class="site-copy-heading"><div><span class="eyebrow">Secciones existentes</span><h4>Edita los títulos y textos que ya están en tu página</h4><p>Estos campos modifican la web actual sin cambiar su estructura visual.</p></div><span class="secure-chip">Contenido validado</span></div>
+              <div class="site-copy-grid">
+                <fieldset><legend>Servicios</legend><label>Etiqueta<input name="servicesEyebrow" maxlength="80"></label><label>Título<input name="servicesTitle" maxlength="140" required></label><label>Descripción<textarea name="servicesDescription" maxlength="600" rows="2" required></textarea></label></fieldset>
+                <fieldset><legend>Productos</legend><label>Etiqueta<input name="productsEyebrow" maxlength="80"></label><label>Título<input name="productsTitle" maxlength="140" required></label><label>Descripción<textarea name="productsDescription" maxlength="600" rows="2" required></textarea></label></fieldset>
+                <fieldset><legend>Trabajos</legend><label>Etiqueta<input name="portfolioEyebrow" maxlength="80"></label><label>Título<input name="portfolioTitle" maxlength="140" required></label><label>Descripción<textarea name="portfolioDescription" maxlength="600" rows="2" required></textarea></label><label>Texto del enlace<input name="portfolioProfileLabel" maxlength="80"></label><label>Enlace del perfil<input name="portfolioProfileUrl" inputmode="url" maxlength="500" required></label></fieldset>
+                <fieldset><legend>Proceso</legend><label>Etiqueta<input name="processEyebrow" maxlength="80"></label><label>Título<input name="processTitle" maxlength="140" required></label><label>Descripción<textarea name="processDescription" maxlength="600" rows="2" required></textarea></label></fieldset>
+                <fieldset><legend>Resultados</legend><label>Etiqueta<input name="resultsEyebrow" maxlength="80"></label><label>Título<input name="resultsTitle" maxlength="140" required></label><label>Descripción<textarea name="resultsDescription" maxlength="600" rows="2" required></textarea></label></fieldset>
+              </div>
+              <div class="form-actions"><p>Guarda como borrador y publícalo cuando revises todos los cambios.</p><button class="primary compact" type="submit">Guardar textos de la página</button></div>
+            </form>
+          </section>
+
+          <section id="site-panel-layout" class="site-panel" data-site-panel="layout" role="tabpanel" aria-labelledby="site-tab-layout" hidden>
+            <div class="site-panel-heading"><div><h3>Constructor de secciones</h3><p>Agrega, ordena, oculta y edita bloques de texto, botones, grids, galerías y servicios. El diseño se conserva estable; no se permite código ni HTML.</p></div><span class="secure-chip">Edición segura</span></div>
+            <div class="layout-builder">
+              <aside class="layout-library" aria-label="Secciones de la página">
+                <div class="editor-list-heading"><h4>Secciones de esta página</h4><span id="layout-section-count">0</span></div>
+                <div class="layout-add-actions" aria-label="Agregar una sección">
+                  <button class="small-button" type="button" data-add-layout="text">+ Texto</button>
+                  <button class="small-button" type="button" data-add-layout="cta">+ Botón</button>
+                  <button class="small-button" type="button" data-add-layout="grid">+ Grid</button>
+                  <button class="small-button" type="button" data-add-layout="gallery">+ Galería</button>
+                  <button class="small-button" type="button" data-add-layout="services">+ Servicios</button>
+                </div>
+                <div id="layout-section-list" class="editor-list layout-section-list" aria-live="polite"></div>
+              </aside>
+              <form id="layout-section-form" class="editor-form compact-form" novalidate>
+                <input name="id" type="hidden"><input name="type" type="hidden">
+                <div class="layout-form-heading"><div><span class="eyebrow">Bloque seleccionado</span><h4 id="layout-form-title">Elige o crea una sección</h4></div><label class="checkbox-label"><input name="visible" type="checkbox" checked><span>Visible al publicar</span></label></div>
+                <div class="form-grid"><label>Etiqueta superior<input name="eyebrow" maxlength="80" autocomplete="off"></label><label>Columnas<select name="columns"><option value="1">1 columna</option><option value="2">2 columnas</option><option value="3" selected>3 columnas</option><option value="4">4 columnas</option></select></label></div>
+                <label>Título<input name="title" maxlength="140" autocomplete="off" placeholder="Título de la sección"></label><label>Descripción<textarea name="description" maxlength="600" rows="3" placeholder="Explica esta sección con claridad."></textarea></label>
+                <fieldset id="layout-buttons-fields" class="layout-conditional" hidden><legend>Botones</legend><div class="form-grid"><label>Botón principal<input name="primaryLabel" maxlength="48" autocomplete="off"></label><label>Enlace principal<input name="primaryUrl" maxlength="500" inputmode="url" autocomplete="url" placeholder="#contacto o https://…"></label></div><div class="form-grid"><label>Botón secundario<input name="secondaryLabel" maxlength="48" autocomplete="off"></label><label>Enlace secundario<input name="secondaryUrl" maxlength="500" inputmode="url" autocomplete="url" placeholder="#productos o https://…"></label></div></fieldset>
+                <fieldset id="layout-cards-fields" class="layout-conditional" hidden><legend>Tarjetas del grid</legend><p>Una tarjeta por línea: <code>Título | descripción | botón opcional | enlace opcional</code>.</p><label>Tarjetas<textarea name="cards" maxlength="8000" rows="7" placeholder="Tarjeta uno | Texto breve | Ver más | #contacto"></textarea></label></fieldset>
+                <fieldset id="layout-media-fields" class="layout-conditional" hidden><legend>Fotos de esta galería</legend><p>Selecciona fotos ya subidas en la pestaña Galería.</p><div id="layout-media-picker" class="layout-media-picker"></div></fieldset>
+                <div class="form-actions"><p id="layout-form-help">Crea un bloque para empezar. Los cambios quedan en borrador hasta que publiques.</p><div><button id="layout-reset" class="ghost" type="button">Cancelar</button><button class="primary compact" type="submit">Guardar sección</button></div></div>
+              </form>
+            </div>
           </section>
 
           <section id="site-panel-services" class="site-panel" data-site-panel="services" role="tabpanel" aria-labelledby="site-tab-services" hidden>

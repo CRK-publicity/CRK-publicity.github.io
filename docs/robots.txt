@@ -1,5 +1,16 @@
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Search visibility is independent from model-training access.
+User-agent: GPTBot
+Disallow: /
+
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /pago/
 
-Sitemap: https://iwandezu.github.io/crkpublicity/sitemap.xml
+Sitemap: https://crk-publicity.pages.dev/sitemap.xml
