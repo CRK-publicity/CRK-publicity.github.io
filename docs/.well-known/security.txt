@@ -1,4 +1,4 @@
-Contact: mailto:crkpublicidad@yahoo.com
+Contact: mailto:crackenpublicity2019@gmail.com
 Canonical: https://crk-publicity.pages.dev/.well-known/security.txt
 Preferred-Languages: es, en
 Expires: 2027-07-13T23:59:59Z
